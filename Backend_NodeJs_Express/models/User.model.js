@@ -8,7 +8,6 @@ const User = sequelize.define('User',{
     mail: Sequelize.STRING,
     password: Sequelize.TEXT,
     image: Sequelize.STRING,
-    job: Sequelize.STRING,
     activated: Sequelize.TINYINT,
     loginAttemps: Sequelize.INTEGER,
     isLocked : Sequelize.TINYINT,
