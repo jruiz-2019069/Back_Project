@@ -1,24 +1,22 @@
-const sequelize = require("sequelize");
+const { DataTypes } = require("sequelize");
 
-const User = sequelize.define('User',{
-    id:{type: Sequelize.INTEGER, primaryKey: true},
-    username: Sequelize.STRING (255),
-    firstName: Sequelize.STRING,
-    lastName: Sequelize.STRING,
-    mail: Sequelize.STRING,
-    password: Sequelize.TEXT,
-    image: Sequelize.STRING,
-    activated: Sequelize.TINYINT,
-    loginAttemps: Sequelize.INTEGER,
-    isLocked : Sequelize.TINYINT,
-    lockUntil: Sequelize.BIGINT,
-    resetPasswordToken: Sequelize.TEXT,
-    activateUserToken: Sequelize.TEXT,
-    sessionUserToken: Sequelize.TEXT,
-    deleted: Sequelize.TINYINT,
-    needChangePassword: Sequelize.TINYINT,
-    createdAt: Sequelize.DATE,
-    updatedAt: Sequelize.DATE,
-})
-
-module.exports = User;
+module.exports = (sequelize) => {
+    return User = sequelize.define("User", {
+        id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+        username: DataTypes.STRING(255),
+        firstName: DataTypes.STRING,
+        lastName: DataTypes.STRING,
+        mail: DataTypes.STRING,
+        password: DataTypes.TEXT,
+        image: DataTypes.STRING,
+        activated: DataTypes.TINYINT,
+        loginAttemps: DataTypes.INTEGER,
+        isLocked: DataTypes.TINYINT,
+        lockUntil: DataTypes.BIGINT,
+        resetPasswordToken: DataTypes.TEXT,
+        activateUserToken: DataTypes.TEXT,
+        sessionUserToken: DataTypes.TEXT,
+        deleted: DataTypes.TINYINT,
+        needChangePassword: DataTypes.TINYINT
+      });
+}

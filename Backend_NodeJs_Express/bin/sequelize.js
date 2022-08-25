@@ -1,16 +1,22 @@
 const Sequelize = require('sequelize');
 
-exports.connectDB = () => {
-    const sequelize = new Sequelize('bdgDatabase', 'root', 'admin', {
-        host: 'localhost',
-        dialect: 'mysql',
-    });
-    
-    sequelize.authenticate()
-        .then(()=>{
-            console.log('Conexión exitosa a la base de datos.')
-        })
-        .catch(err=>{
-            console.log('No se conectó')
-        })
+const UserModel = require("../models/User.model");
+
+
+const sequelize = new Sequelize('bdgDatabase', 'root', 'admin', {
+    host: 'localhost',
+    dialect: 'mysql',
+    port: '3306'
+});
+
+const User = UserModel(sequelize);
+
+sequelize.sync({ force: true }).then(() => {
+    console.log("Sincronizacion exitosa");
+});
+
+module.exports = {
+    User
 }
+        
+        
