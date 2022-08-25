@@ -15,7 +15,7 @@ for(const modelDefined of Models){
     modelDefined(sequelize);
 }
 
-sequelize.sync({ force: true }).then(() => {
+sequelize.sync({ force: false }).then(() => {
     console.log("Sincronizacion exitosa");
 });
 

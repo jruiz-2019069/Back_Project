@@ -5,5 +5,7 @@ var router = express.Router();
 
 /* GET users listing. */
 router.post('/login', UserController.login);
+router.post('/register', UserController.register);
+
 
 module.exports = router;
