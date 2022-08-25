@@ -1,5 +1,6 @@
-"use strict"
-const {User} = require("../bin/sequelize");
+const sequelize = require("../bin/sequelize");
+
+const { models } = sequelize;
 
 exports.login = async (req, res) => {
     try {
