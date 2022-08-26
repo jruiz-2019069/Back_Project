@@ -1,12 +1,13 @@
 const Sequelize = require('sequelize');
 const Models = require("../models");
+require("dotenv").config();
 
 const UserModel = require("../models/User.model");
 
-const sequelize = new Sequelize('bdgDatabase', 'root', 'admin', {
-    host: 'localhost',
-    dialect: 'mysql',
-    port: '3306'
+const sequelize = new Sequelize(process.env.DB, process.env.ADMIN, process.env.PASSWORD, {
+    host: process.env.HOST,
+    dialect: process.env.DIALECT,
+    port: process.env.PORTDB
 });
 
 //const User = UserModel(sequelize);

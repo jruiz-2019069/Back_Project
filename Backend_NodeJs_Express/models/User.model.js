@@ -9,14 +9,14 @@ module.exports = (sequelize) => {
         mail: DataTypes.STRING,
         password: DataTypes.TEXT,
         image: DataTypes.STRING,
-        activated: DataTypes.TINYINT,
+        activated: DataTypes.BOOLEAN,
         loginAttemps: DataTypes.INTEGER,
-        isLocked: DataTypes.TINYINT,
+        isLocked: DataTypes.BOOLEAN,
         lockUntil: DataTypes.BIGINT,
         resetPasswordToken: DataTypes.TEXT,
         activateUserToken: DataTypes.TEXT,
         sessionUserToken: DataTypes.TEXT,
-        deleted: DataTypes.TINYINT,
-        needChangePassword: DataTypes.TINYINT
+        deleted: DataTypes.BOOLEAN,
+        needChangePassword: DataTypes.BOOLEAN
       });
 }
