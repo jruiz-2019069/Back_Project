@@ -3,7 +3,6 @@ const Models = require("../models");
 
 const UserModel = require("../models/User.model");
 
-
 const sequelize = new Sequelize('bdgDatabase', 'root', 'admin', {
     host: 'localhost',
     dialect: 'mysql',
@@ -16,7 +15,7 @@ for(const modelDefined of Models){
 }
 
 sequelize.sync({ force: false }).then(() => {
-    console.log("Sincronizacion exitosa");
+    console.log("Sincronizacion y conexión exitosa.");
 });
 
 module.exports = sequelize;
