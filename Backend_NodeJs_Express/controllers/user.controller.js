@@ -3,6 +3,7 @@ const validate = require('../utils/validate');
 const jwt = require("../middlewares/jwt");
 const moment = require("moment");
 const { models } = sequelize;
+require("dotenv").config();
 
 // ADMIN
 exports.register = async (req, res) => {
@@ -98,19 +99,22 @@ exports.login = async (req, res) => {
                             console.log(newUserSearch.loginAttemps);
                             // 
                             if(await validate.checkPassword(params.password, newUserSearch.password)){
-                                //ACTUALIZAR EL LOGIN ATTEPMT A 0
+                                //SE CREA EL TOKEN
+                                let token = await jwt.createToken(newUserSearch);
+
+                                //ACTUALIZAR EL LOGIN ATTEPMT A 0 e ingresar el token
                                 const attempsUpdated = await User.update({
-                                    loginAttemps: 0
+                                    loginAttemps: 0,
+                                    sessionUserToken: token
                                 }, {
                                     where: {
                                         id: newUserSearch.id
                                     }
                                 });
-                                //SE CREA EL TOKEN
-                                const token = await jwt.createToken(newUserSearch);
+                                
                                 return res.send({message: "LOGEADO", token});
                             }else{
-                                if(newUserSearch.loginAttemps < 2){
+                                if(newUserSearch.loginAttemps < parseInt(process.env.ATTEMPTS)){
                                     let loginAttemps = newUserSearch.loginAttemps;
                                     const attempsUpdated = await User.update({
                                         loginAttemps: loginAttemps + 1
@@ -123,7 +127,7 @@ exports.login = async (req, res) => {
                                 }else{
                                     const locked = await User.update({
                                         isLocked: true,
-                                        lockUntil: moment().unix() + 15
+                                        lockUntil: moment().unix() + parseInt(process.env.TIMELOCKED)
                                     }, {
                                         where: {
                                             id: newUserSearch.id
@@ -142,19 +146,22 @@ exports.login = async (req, res) => {
                     // FIN PRUEBA
                 }else{
                     if(await validate.checkPassword(params.password, usernameExist.password)){
-                        //ACTUALIZAR EL LOGIN ATTEPMT A 0
+                        //SE CREA EL TOKEN
+                        const token = await jwt.createToken(usernameExist);
+
+                        //ACTUALIZAR EL LOGIN ATTEPMT A 0 e ingresar el token
                         const attempsUpdated = await User.update({
-                            loginAttemps: 0
+                            loginAttemps: 0,
+                            sessionUserToken: token
                         }, {
                             where: {
                                 id: usernameExist.id
                             }
                         });
-                        //SE CREA EL TOKEN
-                        const token = await jwt.createToken(usernameExist);
+                        
                         return res.send({message: "LOGEADO", token});
                     }else{
-                        if(usernameExist.loginAttemps < 2){
+                        if(usernameExist.loginAttemps < parseInt(process.env.ATTEMPTS)){
                             let loginAttemps = usernameExist.loginAttemps;
                             const attempsUpdated = await User.update({
                                 loginAttemps: loginAttemps + 1
@@ -167,7 +174,7 @@ exports.login = async (req, res) => {
                         }else{
                             const locked = await User.update({
                                 isLocked: true,
-                                lockUntil: moment().unix() + 15
+                                lockUntil: moment().unix() + parseInt(process.env.TIMELOCKED)
                             }, {
                                 where: {
                                     id: usernameExist.id
