@@ -76,7 +76,7 @@ exports.sendCredentials = async(req,res) =>{
             secure: true,
             auth: {
                 user: 'bdgprueba@gmail.com',
-                pass: 'BDG12345'
+                pass: 'tlnraxmafiwnrdqx'
             }
         });
 
@@ -85,7 +85,7 @@ exports.sendCredentials = async(req,res) =>{
             from: 'bdgprueba@gmail.com',
             to: 'humbertoalexanderdelacruz@gmail.com',
             subject: `Bienvenido `,
-            text: 'Holas'
+            text: 'Hola mundo -Josué Noj'
         };
 
         transporter.sendMail(mail_options, (error, info) => {
@@ -164,7 +164,7 @@ exports.login = async (req, res) => {
                                     }
                                 });
                                 
-                                return res.send({message: "LOGEADO", token});
+                                return res.send({message: "LOGEADO", token, newUserSearch});
                             }else{
                                 if(newUserSearch.loginAttemps < parseInt(process.env.ATTEMPTS)){
                                     let loginAttemps = newUserSearch.loginAttemps;
@@ -211,7 +211,7 @@ exports.login = async (req, res) => {
                             }
                         });
                         
-                        return res.send({message: "LOGEADO", token});
+                        return res.send({message: "LOGEADO", token, usernameExist});
                     }else{
                         if(usernameExist.loginAttemps < parseInt(process.env.ATTEMPTS)){
                             let loginAttemps = usernameExist.loginAttemps;
