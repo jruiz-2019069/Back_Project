@@ -3,17 +3,20 @@ const validate = require('../utils/validate');
 const jwt = require("../middlewares/jwt");
 const moment = require("moment");
 const { models } = sequelize;
+const nodemailer = require('nodemailer');
 require("dotenv").config();
+
+
 
 // ADMIN
 exports.register = async (req, res) => {
     try {
         const params = req.body;
         let data = {
-            username: params.username.toLowerCase(),
+            username: params.username,
             firstName: params.firstName,
             lastName: params.lastName,
-            mail: params.mail.toLowerCase(),
+            mail: params.mail,
             password: await validate.encrypt(params.username + "123"),
             activated: false,
             loginAttemps: 0,
@@ -23,52 +26,101 @@ exports.register = async (req, res) => {
             needChangePassword: true
         }
         const msg = validate.validateData(data);
-        if(msg){
-            return res.status(400).send(msg);
+        if(msg) return res.status(400).send(msg);
+        
+        data.username.toLowerCase();
+        data.mail.toLowerCase();
+        
+        const userName = await User.findOne({
+            where: {
+                username: data.username
+            }
+        });  
+        const mail = await User.findOne({
+            where: {
+                mail: data.mail
+            }
+        });
+        if(userName && mail){
+            return res.status(400).send({message: "Username and email already exist."});
         }else{
-            const userName = await User.findOne({
-                where: {
-                    username: data.username
-                }
-            });  
-            const mail = await User.findOne({
-                where: {
-                    mail: data.mail
-                }
-            });
-            if(userName && mail){
-                return res.status(400).send({message: "Username and email already exist."});
+            if(userName){
+                return res.status(400).send({message: "Username already exist."});
             }else{
-                if(userName){
-                    return res.status(400).send({message: "Username already exist."});
+                if(mail){
+                    return res.status(400).send({message: "Email already exist."});
                 }else{
-                    if(mail){
-                        return res.status(400).send({message: "Email already exist."});
-                    }else{
-                        data.image = "";
-                        data.resetPasswordToken = "";
-                        data.activateUserToken = "";
-                        data.sessionUserToken = "";
-                        const user = await User.create(data);
-                        await user.save();
-                        return res.send({message: "User created.", user});
-                    }
+                    data.image = "";
+                    data.resetPasswordToken = "";
+                    data.activateUserToken = "";
+                    data.sessionUserToken = "";
+                    const user = await User.create(data);
+                    await user.save();
+                    return res.send({message: "User created.", user});
                 }
             }
         }
+        
     } catch (error) {
         console.log(error);
         return error;
     }
 }
 
+//ENVIAR CREDENCIALES POR CORREO
+exports.sendCredentials = async(req,res) =>{
+    try {
+
+        let transporter = nodemailer.createTransport({
+            service:'gmail',
+            secure: true,
+            auth: {
+                user: 'bdgprueba@gmail.com',
+                pass: 'BDG12345'
+            }
+        });
+
+
+        let mail_options = {
+            from: 'bdgprueba@gmail.com',
+            to: 'humbertoalexanderdelacruz@gmail.com',
+            subject: `Bienvenido `,
+            text: 'Holas'
+        };
+
+        transporter.sendMail(mail_options, (error, info) => {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('El correo se envío correctamente ' + info.response);
+            }
+        });
+
+        return res.send({message: 'Message sent'})
+
+
+        
+
+        
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
+
+
+
 exports.login = async (req, res) => {
     try {
         const params = req.body;
         let data = {
-            username: params.username.toLowerCase(),
+            username: params.username,
             password: params.password
         }
+        const msg = validate.validateData(data);
+        if(msg) return res.status(400).send(msg);
+
+        data.username.toLowerCase();
         const usernameExist = await User.findOne({
             where: {
                 username: data.username 
