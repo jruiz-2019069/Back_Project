@@ -6,18 +6,17 @@ const { models } = sequelize;
 const nodemailer = require('nodemailer');
 require("dotenv").config();
 
-
-
 // ADMIN
 exports.register = async (req, res) => {
     try {
         const params = req.body;
+        const tempPassword = params.username + "123";
         let data = {
             username: params.username,
             firstName: params.firstName,
             lastName: params.lastName,
             mail: params.mail,
-            password: await validate.encrypt(params.username + "123"),
+            password: await validate.encrypt(tempPassword),
             activated: false,
             loginAttemps: 0,
             isLocked: false,
@@ -56,7 +55,9 @@ exports.register = async (req, res) => {
                     data.sessionUserToken = "";
                     const user = await User.create(data);
                     await user.save();
-                    
+                    if(params.sendEmail == "true"){
+                        this.sendCredentials(user, tempPassword);
+                    }
                     return res.send({message: "User created.", user});
                 }
             }
@@ -69,15 +70,8 @@ exports.register = async (req, res) => {
 }
 
 //ENVIAR CREDENCIALES POR CORREO
-exports.sendCredentials = async(req,res) =>{
+exports.sendCredentials = async (user, tempPassword) =>{
     try {
-        const email = req.params.email; 
-        const mail = await User.findOne({
-            where: {
-                mail: email
-            }
-        });
-        console.log(mail);
         let transporter = nodemailer.createTransport({
             service:'gmail',
             secure: true,
@@ -87,15 +81,14 @@ exports.sendCredentials = async(req,res) =>{
             }
         });
 
-
         let mail_options = {
             from: process.env.FROM_MAIL,
-            to: email,
+            to: user.mail,
             subject: `Bienvenido `,
-            html:  'Hola' + ' ' + mail.firstName + ' ' + mail.lastName + ', ' + 'gusto en saludarte,' + 
+            html:  'Hola' + ' ' + user.firstName + ' ' + user.lastName + ', ' + 'gusto en saludarte,' + 
             ' <br>' +
-            ' <br>' + '•Usuario:'+ ' ' +  mail.username + 
-            ' <br>' + '•Tu contraseña temporal es:' + ' ' + mail.password + 
+            ' <br>' + '•Usuario:'+ ' ' +  user.username + 
+            ' <br>' + '•Tu contraseña temporal es:' + ' ' + tempPassword + 
             ' <br>' + '•Link para restablecer tu contraseña:' + ' ' + 'https://bdgsa.net/' +
             ' <br>' +  
             ' <br>' + 'Saludos Cordiales,'
@@ -107,17 +100,12 @@ exports.sendCredentials = async(req,res) =>{
             } else {
                 console.log('El correo se envío correctamente ' + info.response);
             }
-        });
-
-        return res.send({message: 'Message sent'})
-  
+        });  
     } catch (error) {
         console.log(error);
         return error;
     }
 }
-
-
 
 exports.login = async (req, res) => {
     try {
