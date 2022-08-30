@@ -70,22 +70,34 @@ exports.register = async (req, res) => {
 //ENVIAR CREDENCIALES POR CORREO
 exports.sendCredentials = async(req,res) =>{
     try {
-
+        const email = req.params.email; 
+        const mail = await User.findOne({
+            where: {
+                mail: email
+            }
+        });
+        console.log(mail);
         let transporter = nodemailer.createTransport({
             service:'gmail',
             secure: true,
             auth: {
-                user: 'bdgprueba@gmail.com',
-                pass: 'tlnraxmafiwnrdqx'
+                user: process.env.USERMAIL,
+                pass: process.env.PASSMAIL
             }
         });
 
 
         let mail_options = {
-            from: 'bdgprueba@gmail.com',
-            to: 'humbertoalexanderdelacruz@gmail.com',
+            from: process.env.FROM_MAIL,
+            to: email,
             subject: `Bienvenido `,
-            text: 'Hola mundo -Josué Noj'
+            html:  'Hola' + ' ' + mail.firstName + ' ' + mail.lastName + ', ' + 'gusto en saludarte,' + 
+            ' <br>' +
+            ' <br>' + '•Usuario:'+ ' ' +  mail.username + 
+            ' <br>' + '•Tu contraseña temporal es:' + ' ' + mail.password + 
+            ' <br>' + '•Link para restablecer tu contraseña:' + ' ' + 'https://bdgsa.net/' +
+            ' <br>' +  
+            ' <br>' + 'Saludos Cordiales,'
         };
 
         transporter.sendMail(mail_options, (error, info) => {
@@ -97,11 +109,7 @@ exports.sendCredentials = async(req,res) =>{
         });
 
         return res.send({message: 'Message sent'})
-
-
-        
-
-        
+  
     } catch (error) {
         console.log(error);
         return error;
