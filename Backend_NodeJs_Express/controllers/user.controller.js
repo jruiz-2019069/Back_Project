@@ -56,6 +56,7 @@ exports.register = async (req, res) => {
                     data.sessionUserToken = "";
                     const user = await User.create(data);
                     await user.save();
+                    
                     return res.send({message: "User created.", user});
                 }
             }
@@ -172,7 +173,7 @@ exports.login = async (req, res) => {
                                     }
                                 });
                                 
-                                return res.send({message: "LOGEADO", token, newUserSearch});
+                                return res.status(200).send({message: "LOGEADO", token, newUserSearch});
                             }else{
                                 if(newUserSearch.loginAttemps < parseInt(process.env.ATTEMPTS)){
                                     let loginAttemps = newUserSearch.loginAttemps;
@@ -183,7 +184,7 @@ exports.login = async (req, res) => {
                                             id: newUserSearch.id
                                         }
                                     });
-                                    return res.send({message: `Invalid credentials. Remaining attempts: ${3-(newUserSearch.loginAttemps+1)}`});
+                                    return res.status(400).send({message: `Invalid credentials. Remaining attempts: ${3-(newUserSearch.loginAttemps+1)}`});
                                 }else{
                                     const locked = await User.update({
                                         isLocked: true,
@@ -219,7 +220,7 @@ exports.login = async (req, res) => {
                             }
                         });
                         
-                        return res.send({message: "LOGEADO", token, usernameExist});
+                        return res.status(200).send({message: "LOGEADO", token, usernameExist});
                     }else{
                         if(usernameExist.loginAttemps < parseInt(process.env.ATTEMPTS)){
                             let loginAttemps = usernameExist.loginAttemps;
@@ -230,7 +231,7 @@ exports.login = async (req, res) => {
                                     id: usernameExist.id
                                 }
                             });
-                            return res.send({message: `Invalid credentials. Remaining attempts: ${3-(usernameExist.loginAttemps+1)}`});
+                            return res.status(200).send({message: `Invalid credentials. Remaining attempts: ${3-(usernameExist.loginAttemps+1)}`});
                         }else{
                             const locked = await User.update({
                                 isLocked: true,
@@ -246,7 +247,7 @@ exports.login = async (req, res) => {
                 }
             }
         }else{
-            return res.send({message: "Non-existing account."});
+            return res.status(400).send({message: "Non-existing account."});
         }
     } catch (error) {
         console.log(error);
