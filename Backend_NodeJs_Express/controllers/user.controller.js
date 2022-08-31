@@ -11,7 +11,7 @@ require("dotenv").config();
 exports.register = async (req, res) => {
     try {
         const params = req.body;
-        const tempPassword = uuidv4().substring(0,6);
+        const tempPassword = uuidv4().substring(0,8);
         let data = {
             username: params.username,
             firstName: params.firstName,
@@ -43,27 +43,20 @@ exports.register = async (req, res) => {
         });
         if(userName && mail){
             return res.status(400).send({message: "Username and email already exist."});
-        }else{
-            if(userName){
-                return res.status(400).send({message: "Username already exist."});
-            }else{
-                if(mail){
-                    return res.status(400).send({message: "Email already exist."});
-                }else{
-                    data.image = "";
-                    data.resetPasswordToken = "";
-                    data.activateUserToken = "";
-                    data.sessionUserToken = "";
-                    const user = await User.create(data);
-                    await user.save();
-                    let emailSend = (/true/i).test(params.sendEmail);
-                    if(emailSend){
-                        this.sendCredentials(user, tempPassword);
-                    }
-                    return res.send({message: "User created.", user});
-                }
-            }
         }
+        if(userName) return res.status(400).send({message: "Username already exist."});
+        if(mail) return res.status(400).send({message: "Email already exist."});
+        data.image = "";
+        data.resetPasswordToken = "";
+        data.activateUserToken = "";
+        data.sessionUserToken = "";
+        const user = await User.create(data);
+        await user.save();
+        let emailSend = (/true/i).test(params.sendEmail);
+        if(emailSend){
+            this.sendCredentials(user, tempPassword);
+        }
+        return res.send({message: "User created.", user});
     } catch (error) {
         console.log(error);
         return error;
@@ -88,19 +81,15 @@ exports.sendCredentials = async (user, tempPassword) =>{
             subject: `Bienvenido `,
             html:  'Hola' + ' ' + user.firstName + ' ' + user.lastName + ', ' + 'gusto en saludarte,' + 
             ' <br>' +
-            ' <br>' + '•Usuario:'+ ' ' +  user.username + 
-            ' <br>' + '•Tu contraseña temporal es:' + ' ' + tempPassword + 
-            ' <br>' + '•Link para restablecer tu contraseña:' + ' ' + 'https://bdgsa.net/' +
+            ' <br>' + '• Usuario:'+ ' ' +  user.username + 
+            ' <br>' + '• Tu contraseña temporal es:' + ' ' + tempPassword + 
             ' <br>' +  
             ' <br>' + 'Saludos Cordiales,'
         };
 
         transporter.sendMail(mail_options, (error, info) => {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('El correo se envío correctamente ' + info.response);
-            }
+            if (error) console.log(error);
+            console.log('El correo se envío correctamente ' + info.response);
         });  
     } catch (error) {
         console.log(error);
@@ -183,7 +172,7 @@ exports.login = async (req, res) => {
                                             id: newUserSearch.id
                                         }
                                     });
-                                    return res.status(200).send({message: "Your account has been locked for 20 min."});
+                                    return res.status(400).send({message: "Your account has been locked for 20 min."});
                                 }
                             }
                             // 
@@ -220,7 +209,7 @@ exports.login = async (req, res) => {
                                     id: usernameExist.id
                                 }
                             });
-                            return res.status(200).send({message: `Invalid credentials. Remaining attempts: ${3-(usernameExist.loginAttemps+1)}`});
+                            return res.status(400).send({message: `Invalid credentials. Remaining attempts: ${3-(usernameExist.loginAttemps+1)}`});
                         }else{
                             const locked = await User.update({
                                 isLocked: true,
@@ -230,7 +219,7 @@ exports.login = async (req, res) => {
                                     id: usernameExist.id
                                 }
                             });
-                            return res.status(200).send({message: "Your account has been locked for 20 min."});
+                            return res.status(400).send({message: "Your account has been locked for 20 min."});
                         }
                     }
                 }
