@@ -218,3 +218,69 @@ exports.login = async (req, res) => {
         return error;
     }
 }
+
+exports.updatePassword = async (req, res) => {
+    try {
+        const { newPassword, confirmPassword, idUser } = req.body;
+        //Función para verificar si una contraseña es segura.
+        const isStrongPassword = p => p.search(/^((?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$)(?=.*[;:\.,!¡\?¿@#\$%\^&\-_+=\(\)\[\]\{\}])).{8,20}$/)!=-1;
+        const data = {
+            newPassword,
+            confirmPassword
+        }
+        const msg = validate.validateData(data);
+        if(msg) return res.status(400).send(msg);
+        if(!isStrongPassword(newPassword)) return res.status(400).send({message: "The password does not meet the requirements."});
+        if(newPassword != confirmPassword) return res.status(400).send({message: "There is no match between the passwords."});
+        // Se actualiza la contraseña del ususario
+        const userUpdated = await User.update({
+            password: await validate.encrypt(newPassword),
+            needChangePassword: false
+        }, {
+            where: {
+                id: idUser
+            }
+        });
+        return res.status(200).send({message: "Password updated."});
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
+
+exports.lockUser = async (req, res) => {
+    try {
+        const { id } = req.body;
+        const userUpdated = await User.update({
+            isLocked: true,
+            loginAttemps: 0,
+            lockUntil: 0,
+            sessionUserToken: ""
+        }, {
+            where: {
+                id: id
+            }
+        });
+        return res.status(200).send({message: "User blocked"});
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
+
+exports.unlockedUser = async (req, res) => {
+    try {
+        const { id } = req.body;
+        const userUpdated = await User.update({
+            isLocked: false
+        }, {
+            where: {
+                id: id
+            }
+        });
+        return res.status(200).send({message: "Unlocked user."});
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
