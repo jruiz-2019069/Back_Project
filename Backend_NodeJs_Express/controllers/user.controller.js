@@ -28,8 +28,8 @@ exports.register = async (req, res) => {
         const msg = validate.validateData(data);
         if(msg) return res.status(400).send(msg);
         
-        data.username.toLowerCase();
-        data.mail.toLowerCase();
+        data.username = data.username.toUpperCase();
+        data.mail = data.mail.toLowerCase();
         
         const userName = await User.findOne({
             where: {
@@ -113,120 +113,106 @@ exports.login = async (req, res) => {
                 username: data.username 
             }
         });
-        if(usernameExist){
-            if(usernameExist.deleted){
-                return res.status(400).send({message: "Non-existing account."});
-            }else{
-                if(usernameExist.isLocked){
-                    // PRUEBA LOCKED
-                    if(usernameExist.lockUntil != 0){
-                        if(moment().unix() > usernameExist.lockUntil){
-                            let lockedUpdated = await User.update({
-                                isLocked: false,
-                                lockUntil: 0,
-                                loginAttemps: 0
-                            }, {
-                                where: {
-                                    id: usernameExist.id
-                                }
-                            });
-                            const newUserSearch = await User.findOne({
-                                where: {
-                                    username: data.username 
-                                }
-                            });
-                            console.log(newUserSearch.loginAttemps);
-                            // 
-                            if(await validate.checkPassword(params.password, newUserSearch.password)){
-                                //SE CREA EL TOKEN
-                                let token = await jwt.createToken(newUserSearch);
+        if(!usernameExist) return res.status(400).send({message: "Invalid credentials"});
+        if(usernameExist.deleted) return res.status(400).send({message: "Invalid credentials"});
 
-                                //ACTUALIZAR EL LOGIN ATTEPMT A 0 e ingresar el token
-                                const attempsUpdated = await User.update({
-                                    loginAttemps: 0,
-                                    sessionUserToken: token
-                                }, {
-                                    where: {
-                                        id: newUserSearch.id
-                                    }
-                                });
-                                
-                                return res.status(200).send({message: "LOGEADO", token, newUserSearch});
-                            }else{
-                                if(newUserSearch.loginAttemps < parseInt(process.env.ATTEMPTS)){
-                                    let loginAttemps = newUserSearch.loginAttemps;
-                                    const attempsUpdated = await User.update({
-                                        loginAttemps: loginAttemps + 1
-                                    }, {
-                                        where: {
-                                            id: newUserSearch.id
-                                        }
-                                    });
-                                    return res.status(400).send({message: `Invalid credentials. Remaining attempts: ${3-(newUserSearch.loginAttemps+1)}`});
-                                }else{
-                                    const locked = await User.update({
-                                        isLocked: true,
-                                        lockUntil: moment().unix() + parseInt(process.env.TIMELOCKED)
-                                    }, {
-                                        where: {
-                                            id: newUserSearch.id
-                                        }
-                                    });
-                                    return res.status(400).send({message: "Your account has been locked for 20 min."});
-                                }
-                            }
-                            // 
-                        }else{
-                            return res.status(400).send({message: "Your account is still locked."});
-                        }
-                    }else{
-                        return res.status(400).send({message: "Your account has been blocked by an administrator."});
-                    }
-                    // FIN PRUEBA
-                }else{
-                    if(await validate.checkPassword(params.password, usernameExist.password)){
-                        //SE CREA EL TOKEN
-                        const token = await jwt.createToken(usernameExist);
+        //SI LA CUENTA ESTÁ BLOQUEADA
+        if(usernameExist.isLocked){
+            // PRUEBA LOCKED
+            if(usernameExist.lockUntil == 0) return res.status(400).send({message: "Your account has been blocked by an administrator."});
+            if(moment().unix() < usernameExist.lockUntil) return res.status(400).send({message: "Your account is still locked."});
 
-                        //ACTUALIZAR EL LOGIN ATTEPMT A 0 e ingresar el token
-                        const attempsUpdated = await User.update({
-                            loginAttemps: 0,
-                            sessionUserToken: token
-                        }, {
-                            where: {
-                                id: usernameExist.id
-                            }
-                        });
-                        
-                        return res.status(200).send({message: "LOGEADO", token, usernameExist});
-                    }else{
-                        if(usernameExist.loginAttemps < parseInt(process.env.ATTEMPTS)){
-                            let loginAttemps = usernameExist.loginAttemps;
-                            const attempsUpdated = await User.update({
-                                loginAttemps: loginAttemps + 1
-                            }, {
-                                where: {
-                                    id: usernameExist.id
-                                }
-                            });
-                            return res.status(400).send({message: `Invalid credentials. Remaining attempts: ${3-(usernameExist.loginAttemps+1)}`});
-                        }else{
-                            const locked = await User.update({
-                                isLocked: true,
-                                lockUntil: moment().unix() + parseInt(process.env.TIMELOCKED)
-                            }, {
-                                where: {
-                                    id: usernameExist.id
-                                }
-                            });
-                            return res.status(400).send({message: "Your account has been locked for 20 min."});
-                        }
-                    }
+            let lockedUpdated = await User.update({
+                isLocked: false,
+                lockUntil: 0,
+                loginAttemps: 0
+            }, {
+                where: {
+                    id: usernameExist.id
                 }
+            });
+            const newUserSearch = await User.findOne({
+                where: {
+                    username: data.username 
+                }
+            });
+            console.log(newUserSearch.loginAttemps);
+            //SI LOS PARAMETROS SON CORRECTOS
+            if(await validate.checkPassword(params.password, newUserSearch.password)){
+                //SE CREA EL TOKEN
+                let token = await jwt.createToken(newUserSearch);
+                //ACTUALIZAR EL LOGIN ATTEPMT A 0 e ingresar el token
+                const attempsUpdated = await User.update({
+                    loginAttemps: 0,
+                    sessionUserToken: token
+                }, {
+                    where: {
+                        id: newUserSearch.id
+                    }
+                });
+                return res.status(200).send({message: "Logged In", token, newUserSearch});
             }
-        }else{
-            return res.status(400).send({message: "Non-existing account."});
+            //SI LOS PARAMETROS SON INCORRECTOS
+            if(newUserSearch.loginAttemps < parseInt(process.env.ATTEMPTS)){
+                let loginAttemps = newUserSearch.loginAttemps;
+                const attempsUpdated = await User.update({
+                    loginAttemps: loginAttemps + 1
+                }, {
+                    where: {
+                        id: newUserSearch.id
+                    }
+                });
+                return res.status(400).send({message: `Invalid credentials. Remaining attempts: ${3-(newUserSearch.loginAttemps+1)}`});
+            }
+            const locked = await User.update({
+                isLocked: true,
+                lockUntil: moment().unix() + parseInt(process.env.TIMELOCKED)
+            }, {
+                where: {
+                    id: newUserSearch.id
+                }
+            });
+            return res.status(400).send({message: "Your account has been locked for 20 min."});
         }
+
+        //SI LA CUENTA "NO" ESTÁ BLOQUEADA
+        if(await validate.checkPassword(params.password, usernameExist.password)){
+            //SE CREA EL TOKEN
+            const token = await jwt.createToken(usernameExist);
+            //ACTUALIZAR EL LOGIN ATTEPMT A 0 e ingresar el token
+            const attempsUpdated = await User.update({
+                loginAttemps: 0,
+                sessionUserToken: token
+            }, {
+                where: {
+                    id: usernameExist.id
+                }
+            });
+            return res.status(200).send({message: "Logged In", token, usernameExist});
+        }
+        //SI AUN NO HA TERMINADO SUS INTENTOS
+        if(usernameExist.loginAttemps < parseInt(process.env.ATTEMPTS)){
+            let loginAttemps = usernameExist.loginAttemps;
+            const attempsUpdated = await User.update({
+                loginAttemps: loginAttemps + 1
+            }, {
+                where: {
+                    id: usernameExist.id
+                }
+            });
+            return res.status(400).send({message: `Invalid credentials. Remaining attempts: ${3-(usernameExist.loginAttemps+1)}`});
+        }
+        //SI YA TERMINÓ SUS INTENTOS
+        const locked = await User.update({
+            isLocked: true,
+            lockUntil: moment().unix() + parseInt(process.env.TIMELOCKED)
+        }, {
+            where: {
+                id: usernameExist.id
+            }
+        });
+        return res.status(400).send({message: "Your account has been locked for 20 min."});
+  
     } catch (error) {
         console.log(error);
         return error;
