@@ -4,13 +4,14 @@ const jwt = require("../middlewares/jwt");
 const moment = require("moment");
 const { models } = sequelize;
 const nodemailer = require('nodemailer');
+const {v4: uuidv4} = require("uuid");
 require("dotenv").config();
 
 // ADMIN
 exports.register = async (req, res) => {
     try {
         const params = req.body;
-        const tempPassword = params.username + "123";
+        const tempPassword = uuidv4().substring(0,6);
         let data = {
             username: params.username,
             firstName: params.firstName,
@@ -55,14 +56,14 @@ exports.register = async (req, res) => {
                     data.sessionUserToken = "";
                     const user = await User.create(data);
                     await user.save();
-                    if(params.sendEmail == "true"){
+                    let emailSend = (/true/i).test(params.sendEmail);
+                    if(emailSend){
                         this.sendCredentials(user, tempPassword);
                     }
                     return res.send({message: "User created.", user});
                 }
             }
         }
-        
     } catch (error) {
         console.log(error);
         return error;

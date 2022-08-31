@@ -18,7 +18,8 @@
     "morgan": "~1.9.1",
     "mysql2": "^2.3.3",
     "nodemailer": "^6.7.8",
-    "sequelize": "^6.21.4"
+    "sequelize": "^6.21.4",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "dotenv": "^16.0.1",
