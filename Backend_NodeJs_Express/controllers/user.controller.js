@@ -297,7 +297,6 @@ exports.getUsers = async(req, res) =>{
             }
         });
         return res.status(200).send({users})
-        
     } catch (error) {
         console.log(error);
         return error;
@@ -307,7 +306,7 @@ exports.getUsers = async(req, res) =>{
 //Eliminar Usuario (nivel lógico)
 exports.deleteUser = async(req,res)=>{
     try {
-        const idUser = req.params.idUser
+        const idUser = req.params.idUser;
         const userUpdate = await User.update({
             deleted: true
         },{
@@ -316,7 +315,6 @@ exports.deleteUser = async(req,res)=>{
             }
         })
         return res.status(200).send({message: 'User Deleted'});
-
     } catch (error) {
         console.log(error);
         return error;
@@ -328,21 +326,16 @@ exports.updateUser = async(req,res)=>{
     try {
         const idUser = req.params.idUser;
         const params = req.body
-        const userUpdate = await User.update({
+        const userUpdate = await User.update(
             params
-        },{
+        ,{
             where:{
                 id:idUser
             }
         });
-        return res.status(200).send({message: 'User Updated', userUpdate});
-
+        return res.status(200).send({message: 'User Updated'});
     } catch (error) {
         console.log(error);
         return error;
-        
     }
 }
-
-
-
