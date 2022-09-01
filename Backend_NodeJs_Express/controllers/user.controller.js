@@ -305,6 +305,23 @@ exports.getUsers = async(req, res) =>{
     }
 };
 
+//Listar un usuario
+exports.getUser =async(req,res)=>{
+    try {
+        const idUser = req.params.idUser;
+        const user = await User.findOne({
+            where:{
+                id: idUser
+            }
+        });
+        return res.status(200).send({user})
+
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
+
 //Eliminar Usuario (nivel lógico)
 exports.deleteUser = async(req,res)=>{
     try {
