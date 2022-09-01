@@ -1,6 +1,7 @@
 var express = require('express');
 var UserController = require("../controllers/user.controller");
-
+const connectMultiparty = require('connect-multiparty');
+const upload = connectMultiparty({ uploadDir: './views/users'});
 var router = express.Router();
 
 /* GET users listing. */
@@ -13,5 +14,7 @@ router.get('/getUsers', UserController.getUsers);
 router.put('/deleteUser/:idUser', UserController.deleteUser);
 router.put('/updateUser/:idUser', UserController.updateUser);
 
+router.post('/uploadImage/:idUser', upload, UserController.uploadImage);
+router.get('/getImage/:fileName', upload, UserController.getImage);
 
 module.exports = router;

@@ -24,5 +24,22 @@ exports.checkPassword = async (passBody, passUser) => {
     }
 } 
 
+exports.validExtension = async (ext, filePath)=>{
+    try{
+        if( ext == 'png' ||
+            ext == 'jpg' ||
+            ext == 'jpeg' ||
+            ext == 'gif'){
+            return true;
+        }else{
+            fs.unlinkSync(filePath);
+            return false;
+        }
+    }catch(err){
+        console.log(err);
+        return err;
+    }
+}
+
 
 

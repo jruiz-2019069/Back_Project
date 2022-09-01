@@ -6,6 +6,8 @@ const { models } = sequelize;
 const nodemailer = require('nodemailer');
 const {v4: uuidv4} = require("uuid");
 require("dotenv").config();
+const fs = require('fs');
+const path = require('path');
 
 // ADMIN
 exports.register = async (req, res) => {
@@ -355,3 +357,79 @@ exports.updateUser = async(req,res)=>{
         return error;
     }
 };
+
+exports.uploadImage = async (req, res) => {
+    try {
+        const idUser = req.params.idUser;
+        const userExist = await User.findOne({
+            where:{
+                id: idUser
+            }
+        });
+        if(!userExist) return res.status(400).send({message:'User not found'});
+            const alreadyImage = await User.findOne({
+                where:{
+                    id: idUser
+                }
+            });
+
+            let pathFile = './views/hotels/';
+
+            if (alreadyImage.image) {
+                fs.unlinkSync(pathFile + alreadyImage.image);
+            }
+
+            if (!req.files.image || !req.files.image.type) {
+                return res.status(400).send({ message: 'No se ha enviado una imagen' });
+                
+            } else {
+                //ruta en la que llega la imagen
+                const filePath = req.files.image.path; // \uploads\users\file_name.ext
+
+                //separar en jerarquía la ruta de la imágen (linux o MAC: ('\'))
+                const fileSplit = filePath.split('\\');// fileSplit = ['uploads', 'users', 'file_name.ext']
+                const fileName = fileSplit[2];// fileName = file_name.ext
+
+                const extension = fileName.split('\.'); // extension = ['file_name', 'ext']
+                const fileExt = extension[1]; // fileExt = ext;
+
+                const validExt = await validate.validExtension(fileExt, filePath);
+
+                if (validExt === false) {
+                    return res.status(400).send({ message: 'Extensión inválida' });
+                } else {
+                    const userUpdate = await User.update({
+                        image: fileName}
+                    ,{
+                        where:{
+                            id:idUser
+                        }
+                    });
+                    if(!userUpdate) return res.status(400).send({message: 'User cant updated'})
+                    return res.status(200).send({message: 'User Updated'});
+               
+                } 
+            }
+        
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send({ message: 'Error subiendo imagen' });
+    }
+}
+
+exports.getImage = async (req, res) => {
+    try {
+        const fileName = req.params.fileName;
+        const pathFile = './views/users/' + fileName;
+
+        const image = fs.existsSync(pathFile);
+        if (!image) {
+            return res.status(404).send({ message: 'Imagen no encontrada' });
+        } else {
+            return res.sendFile(path.resolve(pathFile));
+        }
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send({ message: 'Error obteniendo la imagen' });
+    }
+}
