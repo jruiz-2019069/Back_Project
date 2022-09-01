@@ -219,6 +219,7 @@ exports.login = async (req, res) => {
     }
 }
 
+//Actualizar Contraseña cuando se logea por primera vez
 exports.updatePassword = async (req, res) => {
     try {
         const { newPassword, confirmPassword, idUser } = req.body;
@@ -248,6 +249,7 @@ exports.updatePassword = async (req, res) => {
     }
 }
 
+//Bloquear Usuario
 exports.lockUser = async (req, res) => {
     try {
         const { id } = req.body;
@@ -268,6 +270,7 @@ exports.lockUser = async (req, res) => {
     }
 }
 
+//Desbloquear Usuario
 exports.unlockedUser = async (req, res) => {
     try {
         const { id } = req.body;
@@ -284,3 +287,62 @@ exports.unlockedUser = async (req, res) => {
         return error;
     }
 }
+
+//Listar Usuarios
+exports.getUsers = async(req, res) =>{
+    try {
+        const users = await User.findAll({
+            where:{
+                deleted: false
+            }
+        });
+        return res.status(200).send({users})
+        
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+};
+
+//Eliminar Usuario (nivel lógico)
+exports.deleteUser = async(req,res)=>{
+    try {
+        const idUser = req.params.idUser
+        const userUpdate = await User.update({
+            deleted: true
+        },{
+            where:{
+                id: idUser
+            }
+        })
+        return res.status(200).send({message: 'User Deleted'});
+
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+};
+
+//Actualizar Usuario
+exports.updateUser = async(req,res)=>{
+    try {
+        const idUser = req.params.idUser;
+        const params = req.body
+        const userUpdate = await User.update({
+            params
+        },{
+            where:{
+                id:idUser
+            }
+        });
+        return res.status(200).send({message: 'User Updated', userUpdate});
+
+    } catch (error) {
+        console.log(error);
+        return error;
+        
+    }
+}
+
+
+
