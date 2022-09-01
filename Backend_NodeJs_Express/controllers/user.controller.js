@@ -360,7 +360,6 @@ exports.updateUser = async(req,res)=>{
         });
         if(!userExist) return res.status(400).send({message:'User not found'});
         //No se permite actualizar el username
-        if(params.username || params.mail) return res.status(400).send({message:"Can't update user"})
         const userUpdate = await User.update(
             params
         ,{
