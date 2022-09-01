@@ -307,6 +307,13 @@ exports.getUsers = async(req, res) =>{
 exports.deleteUser = async(req,res)=>{
     try {
         const idUser = req.params.idUser;
+        const userExist = await User.findOne({
+            where:{
+                id: idUser
+            }
+        });
+        if(!userExist) return res.status(400).send({message:'User not found'});
+
         const userUpdate = await User.update({
             deleted: true
         },{
@@ -326,6 +333,15 @@ exports.updateUser = async(req,res)=>{
     try {
         const idUser = req.params.idUser;
         const params = req.body
+
+        const userExist = await User.findOne({
+            where:{
+                id: idUser
+            }
+        });
+        if(!userExist) return res.status(400).send({message:'User not found'});
+        //No se permite actualizar el username
+        if(params.username || params.mail) return res.status(400).send({message:"Can't update user"})
         const userUpdate = await User.update(
             params
         ,{
@@ -338,4 +354,4 @@ exports.updateUser = async(req,res)=>{
         console.log(error);
         return error;
     }
-}
+};
