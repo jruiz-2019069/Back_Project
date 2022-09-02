@@ -251,6 +251,32 @@ exports.updatePassword = async (req, res) => {
     }
 }
 
+// Actualizar contraseña cuando el usuario solicita un cambio de contraseña (ADMIN)
+exports.updatePasswordByAdmin = async (req, res) => {
+    try {
+        const idUser = req.params.idUser;
+        const tempPassword = uuidv4().substring(0,8);
+        const user = await User.findOne({
+            where: {
+                id: idUser
+            }
+        });
+        const userUpdate = await User.update({
+            password: await validate.encrypt(tempPassword),
+            needChangePassword: true
+        }, {
+            where: {
+                id: idUser
+            }
+        });
+        this.sendCredentials(user, tempPassword);
+        return res.status(200).send({message: "Password change request made."});
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
+
 //Bloquear Usuario
 exports.lockUser = async (req, res) => {
     try {
@@ -449,3 +475,4 @@ exports.getImage = async (req, res) => {
         return res.status(500).send({ message: 'Error obteniendo la imagen' });
     }
 }
+
