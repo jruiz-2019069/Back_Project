@@ -415,7 +415,7 @@ exports.uploadImage = async (req, res) => {
                 }
             });
 
-            let pathFile = './views/hotels/';
+            let pathFile = './views/users/';
 
             if (alreadyImage.image) {
                 fs.unlinkSync(pathFile + alreadyImage.image);
