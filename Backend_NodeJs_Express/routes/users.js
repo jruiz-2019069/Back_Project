@@ -8,8 +8,6 @@ var router = express.Router();
 router.post('/login', UserController.login);
 router.post('/register', UserController.register);
 router.put('/updatePassword', UserController.updatePassword);
-router.put('/lockUser', UserController.lockUser);
-router.put('/unlockedUser', UserController.unlockedUser);
 router.get('/getUsers', UserController.getUsers);
 router.get('/getUser/:idUser', UserController.getUser);
 router.put('/deleteUser/:idUser', UserController.deleteUser);

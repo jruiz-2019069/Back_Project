@@ -174,7 +174,7 @@ exports.login = async (req, res) => {
                     id: newUserSearch.id
                 }
             });
-            return res.status(400).send({message: "Your account has been locked for 20 min."});
+            return res.status(400).send({message: `Your account has been locked for ${((parseInt(process.env.TIMELOCKED))/60).toFixed(2)} min.`});
         }
 
         //SI LA CUENTA "NO" ESTÁ BLOQUEADA
@@ -213,7 +213,7 @@ exports.login = async (req, res) => {
                 id: usernameExist.id
             }
         });
-        return res.status(400).send({message: "Your account has been locked for 20 min."});
+        return res.status(400).send({message: `Your account has been locked for ${((parseInt(process.env.TIMELOCKED))/60).toFixed(2)} min.`});
   
     } catch (error) {
         console.log(error);
@@ -271,45 +271,6 @@ exports.updatePasswordByAdmin = async (req, res) => {
         });
         this.sendCredentials(user, tempPassword);
         return res.status(200).send({message: "Password change request made."});
-    } catch (error) {
-        console.log(error);
-        return error;
-    }
-}
-
-//Bloquear Usuario
-exports.lockUser = async (req, res) => {
-    try {
-        const { id } = req.body;
-        const userUpdated = await User.update({
-            isLocked: true,
-            loginAttemps: 0,
-            lockUntil: 0,
-            sessionUserToken: ""
-        }, {
-            where: {
-                id: id
-            }
-        });
-        return res.status(200).send({message: "User blocked"});
-    } catch (error) {
-        console.log(error);
-        return error;
-    }
-}
-
-//Desbloquear Usuario
-exports.unlockedUser = async (req, res) => {
-    try {
-        const { id } = req.body;
-        const userUpdated = await User.update({
-            isLocked: false
-        }, {
-            where: {
-                id: id
-            }
-        });
-        return res.status(200).send({message: "Unlocked user."});
     } catch (error) {
         console.log(error);
         return error;
@@ -422,7 +383,7 @@ exports.uploadImage = async (req, res) => {
             }
 
             if (!req.files.image || !req.files.image.type) {
-                return res.status(400).send({ message: 'No se ha enviado una imagen' });
+                return res.status(400).send({ message: 'An image has not been sent' });
                 
             } else {
                 //ruta en la que llega la imagen
@@ -438,7 +399,7 @@ exports.uploadImage = async (req, res) => {
                 const validExt = await validate.validExtension(fileExt, filePath);
 
                 if (validExt === false) {
-                    return res.status(400).send({ message: 'Extensión inválida' });
+                    return res.status(400).send({ message: 'Invalid extension' });
                 } else {
                     const userUpdate = await User.update({
                         image: fileName}
@@ -449,13 +410,12 @@ exports.uploadImage = async (req, res) => {
                     });
                     if(!userUpdate) return res.status(400).send({message: 'User cant updated'})
                     return res.status(200).send({message: 'User Updated'});
-               
                 } 
             }
         
     } catch (err) {
         console.log(err);
-        return res.status(500).send({ message: 'Error subiendo imagen' });
+        return res.status(500).send({ message: 'Error uploading image' });
     }
 }
 
@@ -466,13 +426,13 @@ exports.getImage = async (req, res) => {
 
         const image = fs.existsSync(pathFile);
         if (!image) {
-            return res.status(404).send({ message: 'Imagen no encontrada' });
+            return res.status(404).send({ message: 'Image not found' });
         } else {
             return res.sendFile(path.resolve(pathFile));
         }
     } catch (err) {
         console.log(err);
-        return res.status(500).send({ message: 'Error obteniendo la imagen' });
+        return res.status(500).send({ message: 'Error getting image' });
     }
 }
 
