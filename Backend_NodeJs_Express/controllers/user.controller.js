@@ -55,9 +55,7 @@ exports.register = async (req, res) => {
         const user = await User.create(data);
         await user.save();
         let emailSend = (/true/i).test(params.sendEmail);
-        if(emailSend){
-            this.sendCredentials(user, tempPassword);
-        }
+        if(emailSend) this.sendCredentials(user, tempPassword);
         return res.send({message: "User created.", user});
     } catch (error) {
         console.log(error);
@@ -363,7 +361,7 @@ exports.updateUser = async(req,res)=>{
 
 exports.uploadImage = async (req, res) => {
     try {
-        const idUser = req.params.idUser;
+        
         const userExist = await User.findOne({
             where:{
                 id: idUser
@@ -409,7 +407,7 @@ exports.uploadImage = async (req, res) => {
                         }
                     });
                     if(!userUpdate) return res.status(400).send({message: 'User cant updated'})
-                    return res.status(200).send({message: 'User Updated'});
+                    console.log("Image created.");
                 } 
             }
         
