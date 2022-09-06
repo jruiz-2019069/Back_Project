@@ -1,5 +1,6 @@
 'use strict'
 const bcrypt = require("bcrypt-nodejs");
+const fs = require('fs');
 
 exports.validateData = (data) =>{
     let keys = Object.keys(data), msg = '';

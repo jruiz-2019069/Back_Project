@@ -56,10 +56,68 @@ exports.register = async (req, res) => {
         await user.save();
         let emailSend = (/true/i).test(params.sendEmail);
         if(emailSend) this.sendCredentials(user, tempPassword);
-        return res.send({message: "User created.", user});
+        if(req.files.image){
+            const alreadyImage = await User.findOne({
+                where:{
+                    id: user.id
+                }
+            });
+            let pathFile = './views/users/';
+            if (alreadyImage.image) fs.unlinkSync(pathFile + alreadyImage.image);
+
+            //ruta en la que llega la imagen
+            const filePath = req.files.image.path; // \uploads\users\file_name.ext
+
+            //separar en jerarquía la ruta de la imágen (linux o MAC: ('\'))
+            const fileSplit = filePath.split('\\');// fileSplit = ['uploads', 'users', 'file_name.ext']
+            const fileName = fileSplit[2];// fileName = file_name.ext
+
+            const extension = fileName.split('\.'); // extension = ['file_name', 'ext']
+            const fileExt = extension[1]; // fileExt = ext;
+            
+            const validExt = await validate.validExtension(fileExt, filePath);
+
+            if (validExt === false) {
+                return res.status(400).send({ message: 'Invalid extension' });
+            } else {
+                const userUpdate = await User.update({
+                    image: fileName}
+                ,{
+                    where:{
+                        id:user.id
+                    }
+                });
+                if(!userUpdate) return res.status(400).send({message: 'User cant updated'});
+                console.log("Image created.");
+            } 
+        }
+        const newUser = await User.findOne({
+            where: {
+                id: user.id
+            }
+        });
+        return res.send({message: "User created.", newUser});
     } catch (error) {
         console.log(error);
         return error;
+    }
+}
+
+//Funcion para obtener la imagen de un usuario.
+exports.getImage = async (req, res) => {
+    try {
+        const fileName = req.params.fileName;
+        const pathFile = './views/users/' + fileName;
+
+        const image = fs.existsSync(pathFile);
+        if (!image) {
+            return res.status(404).send({ message: 'Image not found' });
+        } else {
+            return res.sendFile(path.resolve(pathFile));
+        }
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send({ message: 'Error getting image' });
     }
 }
 
@@ -358,79 +416,3 @@ exports.updateUser = async(req,res)=>{
         return error;
     }
 };
-
-exports.uploadImage = async (req, res) => {
-    try {
-        
-        const userExist = await User.findOne({
-            where:{
-                id: idUser
-            }
-        });
-        if(!userExist) return res.status(400).send({message:'User not found'});
-            const alreadyImage = await User.findOne({
-                where:{
-                    id: idUser
-                }
-            });
-
-            let pathFile = './views/users/';
-
-            if (alreadyImage.image) {
-                fs.unlinkSync(pathFile + alreadyImage.image);
-            }
-
-            if (!req.files.image || !req.files.image.type) {
-                return res.status(400).send({ message: 'An image has not been sent' });
-                
-            } else {
-                //ruta en la que llega la imagen
-                const filePath = req.files.image.path; // \uploads\users\file_name.ext
-
-                //separar en jerarquía la ruta de la imágen (linux o MAC: ('\'))
-                const fileSplit = filePath.split('\\');// fileSplit = ['uploads', 'users', 'file_name.ext']
-                const fileName = fileSplit[2];// fileName = file_name.ext
-
-                const extension = fileName.split('\.'); // extension = ['file_name', 'ext']
-                const fileExt = extension[1]; // fileExt = ext;
-
-                const validExt = await validate.validExtension(fileExt, filePath);
-
-                if (validExt === false) {
-                    return res.status(400).send({ message: 'Invalid extension' });
-                } else {
-                    const userUpdate = await User.update({
-                        image: fileName}
-                    ,{
-                        where:{
-                            id:idUser
-                        }
-                    });
-                    if(!userUpdate) return res.status(400).send({message: 'User cant updated'})
-                    console.log("Image created.");
-                } 
-            }
-        
-    } catch (err) {
-        console.log(err);
-        return res.status(500).send({ message: 'Error uploading image' });
-    }
-}
-
-exports.getImage = async (req, res) => {
-    try {
-        const fileName = req.params.fileName;
-        const pathFile = './views/users/' + fileName;
-
-        const image = fs.existsSync(pathFile);
-        if (!image) {
-            return res.status(404).send({ message: 'Image not found' });
-        } else {
-            return res.sendFile(path.resolve(pathFile));
-        }
-    } catch (err) {
-        console.log(err);
-        return res.status(500).send({ message: 'Error getting image' });
-    }
-}
-
