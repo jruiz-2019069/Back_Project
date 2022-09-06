@@ -95,7 +95,7 @@ exports.register = async (req, res) => {
             where: {
                 id: user.id
             }
-        });
+        });        
         return res.send({message: "User created.", newUser});
     } catch (error) {
         console.log(error);

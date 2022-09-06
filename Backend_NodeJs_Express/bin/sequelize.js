@@ -2,7 +2,8 @@ const Sequelize = require('sequelize');
 const Models = require("../models");
 require("dotenv").config();
 
-const UserModel = require("../models/User.model");
+const User = require("../models/User.model");
+const Rol = require("../models/Rol.model");
 
 const sequelize = new Sequelize(process.env.DB, process.env.ADMIN, process.env.PASSWORD, {
     host: process.env.HOST,
