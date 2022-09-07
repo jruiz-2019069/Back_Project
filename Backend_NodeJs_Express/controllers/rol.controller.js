@@ -1,10 +1,11 @@
 const validate = require("../utils/validate");
 const Rol = require("../models/Rol.model");
+const User_Rol = require("../models/User_Rol.model");
 
 // INSERT
 exports.createRol = async (req, res) => {
     try {
-        const { name, description } = req.body;
+        const { name, description, ids } = req.body;
         const data = {
             name,
             description
@@ -19,6 +20,14 @@ exports.createRol = async (req, res) => {
         if(searchRol) return res.status(400).send({message: "Rol already exist."});
         const role = await Rol.create(data);
         await role.save();
+        for(let i = 0; i < ids.length; i++){//[1,3,4,5]
+            let data = {
+                UserId: ids[i],
+                RolId: role.id
+            }
+            let user_rol = await User_Rol.build(data);
+            await user_rol.save();
+        }
         return res.status(200).send({message: "Rol created."});
     } catch (err) {
         console.log(err);
