@@ -57,17 +57,23 @@ exports.updateRol = async (req, res) => {
     try {
         const idRol = req.params.id;
         const params = req.body;
+        const rolExistName = await Rol.findOne({
+            where: {
+                name: params.name
+            }
+        }); 
+        const rolExistId = await Rol.findOne({
+            where: {
+                id: idRol
+            }
+        });
+        if(rolExistName && rolExistId.name != params.name) return res.status(400).send({message: "Rol already exist."});
         const rolUpdated = await Rol.update(params, {
             where: {
                 id: idRol
             }
         });
-        const rol = await Rol.findOne({
-            where: {
-                id: idRol
-            }
-        });
-        return res.status(200).send({message: "Rol updated", rol});
+        return res.status(200).send({message: "Rol updated"});
     } catch (err) {
         console.log(err);
         return err;
