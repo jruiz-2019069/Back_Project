@@ -20,7 +20,8 @@ exports.createRol = async (req, res) => {
         if(searchRol) return res.status(400).send({message: "Rol already exist."});
         const role = await Rol.create(data);
         await role.save();
-        for(let i = 0; i < ids.length; i++){//[1,3,4,5]
+        console.log(role.id)
+        for(let i = 0; i < ids.length; i++){
             let data = {
                 UserId: ids[i],
                 RolId: role.id
@@ -92,6 +93,14 @@ exports.updateRol = async (req, res) => {
 exports.deleteRol = async (req, res) => {
     try {
         const idRol = req.params.id;
+
+        const searchRol = await User_Rol.findOne({
+            where:{
+                RolId: idRol
+            }
+        })
+        if(searchRol) return res.status(400).send({message:'You can not delete this role'});
+
         const deleteRol = await Rol.destroy({
             where: {
                 id: idRol
@@ -99,6 +108,24 @@ exports.deleteRol = async (req, res) => {
         });
         return res.status(200).send({message: "Rol deleted"});
     } catch (err) {
+        console.log(err);
+        return err;
+    }
+
+}
+
+//Obnter los usuarios asociados a un Rol
+exports.getUsersByAdmin = async(req, res)=>{
+    try {
+        const idRol = req.params.idRol;
+        const searchRol = await User_Rol.findAll({
+            where:{
+                RolId: idRol
+            }
+        })
+        return res.status(200).send({searchRol});
+        
+    } catch (error) {
         console.log(err);
         return err;
     }

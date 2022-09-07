@@ -9,5 +9,7 @@ router.get("/getRol/:id", rolController.getRole);
 router.put("/updateRol/:id", rolController.updateRol);
 router.delete("/deleteRol/:id", rolController.deleteRol);
 
+router.get('/getUsersByAdmin/:idRol', rolController.getUsersByAdmin);
+
 
 module.exports = router;
