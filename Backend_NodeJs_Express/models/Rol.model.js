@@ -1,9 +1,14 @@
-const { DataTypes } = require("sequelize");
+const { Model, DataTypes } = require("sequelize");
+const sequelize = require("../bin/sequelize");
 
-module.exports = (sequelize) => {
-    return Rol = sequelize.define("Rol", {
-        id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-        name: DataTypes.STRING(255),
-        description: DataTypes.STRING(255)
-    });
-}
+class Rol extends Model {}
+Rol.init({
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    name: DataTypes.STRING(255),
+    description: DataTypes.STRING(255)
+}, {
+    sequelize,
+    modelName: "Rol"
+});
+
+module.exports = Rol;

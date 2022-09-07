@@ -1,6 +1,5 @@
-const sequelize = require("../bin/sequelize");
 const validate = require("../utils/validate");
-const { models } = sequelize;
+const Rol = require("../models/Rol.model");
 
 // INSERT
 exports.createRol = async (req, res) => {

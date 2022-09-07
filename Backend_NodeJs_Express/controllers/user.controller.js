@@ -1,13 +1,12 @@
-const sequelize = require("../bin/sequelize");
 const validate = require('../utils/validate');
 const jwt = require("../middlewares/jwt");
 const moment = require("moment");
-const { models } = sequelize;
 const nodemailer = require('nodemailer');
 const {v4: uuidv4} = require("uuid");
 require("dotenv").config();
 const fs = require('fs');
 const path = require('path');
+const User = require("../models/User.model");
 
 // ADMIN
 exports.register = async (req, res) => {
