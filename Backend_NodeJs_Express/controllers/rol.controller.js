@@ -1,6 +1,7 @@
 const validate = require("../utils/validate");
 const Rol = require("../models/Rol.model");
 const User_Rol = require("../models/User_Rol.model");
+const User = require("../models/User.model");
 
 // INSERT
 exports.createRol = async (req, res) => {
@@ -118,21 +119,23 @@ exports.deleteRol = async (req, res) => {
 exports.getUsersByAdmin = async(req, res)=>{
     try {
         const idRol = req.params.idRol;
+        let arrayUser = [];
         const searchRol = await User_Rol.findAll({
             where:{
                 RolId: idRol
             }
         })
-        
         for(let i = 0; i < searchRol.length; i++){
-            console.log(searchRol[i].user_rol.UserId);
+            let UserId = searchRol[i].UserId; 
+            const user = await User.findOne({
+                where: {
+                    id: UserId
+                }
+            });
+            const nameUser = user.firstName + " " + user.lastName;
+            arrayUser.push(nameUser);     
         }
-        
-        // arrar.forEach((item) => {
-        //     //let UserId = item.user_rol.UserId;
-        //     console.log(item.UserId);
-        // });
-        
+        return res.status(200).send({arrayUser});
     } catch (err) {
         console.log(err);
         return err;

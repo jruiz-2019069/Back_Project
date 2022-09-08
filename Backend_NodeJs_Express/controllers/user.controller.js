@@ -55,7 +55,7 @@ exports.register = async (req, res) => {
         data.sessionUserToken = "";
 
         //Asignar al menos un rol
-        const idsRol = params.idsRole;
+        const idsRol = params.idsRol;
         if(idsRol.length == 0 ) return res.status(400).send({message: "You must assign at least one role"});
 
         const user = await User.create(data);
