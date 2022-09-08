@@ -123,9 +123,17 @@ exports.getUsersByAdmin = async(req, res)=>{
                 RolId: idRol
             }
         })
-        return res.status(200).send({searchRol});
         
-    } catch (error) {
+        for(let i = 0; i < searchRol.length; i++){
+            console.log(searchRol[i].user_rol.UserId);
+        }
+        
+        // arrar.forEach((item) => {
+        //     //let UserId = item.user_rol.UserId;
+        //     console.log(item.UserId);
+        // });
+        
+    } catch (err) {
         console.log(err);
         return err;
     }
