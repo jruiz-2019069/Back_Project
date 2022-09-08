@@ -7,6 +7,8 @@ require("dotenv").config();
 const fs = require('fs');
 const path = require('path');
 const User = require("../models/User.model");
+const User_Rol = require("../models/User_Rol.model");
+
 
 // ADMIN
 exports.register = async (req, res) => {
@@ -51,8 +53,24 @@ exports.register = async (req, res) => {
         data.resetPasswordToken = "";
         data.activateUserToken = "";
         data.sessionUserToken = "";
+
+        //Asignar al menos un rol
+        const idsRol = params.idsRole;
+        if(idsRol.length == 0 ) return res.status(400).send({message: "You must assign at least one role"});
+
         const user = await User.create(data);
         await user.save();
+
+        //Agregarle al usuario los roles que desee
+        for(let i = 0; i < idsRol.length; i++){
+            let data = {
+                UserId: user.id,
+                RolId: idsRol[i]
+            }
+            let user_rol = await User_Rol.build(data);
+            await user_rol.save();
+        };
+
         let emailSend = (/true/i).test(params.sendEmail);
         if(emailSend) this.sendCredentials(user, tempPassword);
         if(req.files.image){
@@ -94,7 +112,8 @@ exports.register = async (req, res) => {
             where: {
                 id: user.id
             }
-        });        
+        });
+
         return res.send({message: "User created.", newUser});
     } catch (error) {
         console.log(error);

@@ -20,7 +20,7 @@ exports.createRol = async (req, res) => {
         if(searchRol) return res.status(400).send({message: "Rol already exist."});
         const role = await Rol.create(data);
         await role.save();
-        console.log(role.id)
+        //Agregarle al rol nuevo los usuarios deseados
         for(let i = 0; i < ids.length; i++){
             let data = {
                 UserId: ids[i],
