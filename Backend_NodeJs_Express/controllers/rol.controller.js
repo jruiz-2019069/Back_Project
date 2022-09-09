@@ -122,7 +122,11 @@ exports.getUsersByAdmin = async(req, res)=>{
         let arrayUserTrue = [];
         let arrayUserFalse = [];
         let arrayNumbers = [];
-        const users = await User.findAll();
+        const users = await User.findAll({
+            where: {
+                deleted:0
+            }
+        });
         for(let i = 0; i < users.length; i++){
             const usersId = await User_Rol.findAll({
                 where: {
@@ -147,8 +151,8 @@ exports.getUsersByAdmin = async(req, res)=>{
                 });
             }
         }
-        let nuevoArray = arrayUserTrue.concat(arrayUserFalse);
-        return res.status(200).send({nuevoArray});
+        let newArray = arrayUserTrue.concat(arrayUserFalse);
+        return res.status(200).send({newArray});
     } catch (err) {
         console.log(err);
         return err;
