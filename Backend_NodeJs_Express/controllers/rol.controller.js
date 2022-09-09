@@ -119,23 +119,36 @@ exports.deleteRol = async (req, res) => {
 exports.getUsersByAdmin = async(req, res)=>{
     try {
         const idRol = req.params.idRol;
-        let arrayUser = [];
-        const searchRol = await User_Rol.findAll({
-            where:{
-                RolId: idRol
-            }
-        })
-        for(let i = 0; i < searchRol.length; i++){
-            let UserId = searchRol[i].UserId; 
-            const user = await User.findOne({
+        let arrayUserTrue = [];
+        let arrayUserFalse = [];
+        let arrayNumbers = [];
+        const users = await User.findAll();
+        for(let i = 0; i < users.length; i++){
+            const usersId = await User_Rol.findAll({
                 where: {
-                    id: UserId
+                    RolId: idRol
                 }
             });
-            const nameUser = user.firstName + " " + user.lastName;
-            arrayUser.push(nameUser);     
+
+            for(let j = 0; j < usersId.length; j++){
+                let UserId = usersId[j].UserId; 
+                if(!arrayNumbers.includes(UserId)) arrayNumbers.push(UserId);                   
+            }
+
+            if(arrayNumbers.includes(users[i].id)){
+                arrayUserTrue.push({
+                    name: users[i].firstName,
+                    include: true
+                });
+            }else{
+                arrayUserFalse.push({
+                    name: users[i].firstName,
+                    include: false
+                });
+            }
         }
-        return res.status(200).send({arrayUser});
+        let nuevoArray = arrayUserTrue.concat(arrayUserFalse);
+        return res.status(200).send({nuevoArray});
     } catch (err) {
         console.log(err);
         return err;
