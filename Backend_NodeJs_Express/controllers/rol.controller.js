@@ -145,14 +145,16 @@ exports.getUsersByAdmin = async(req, res)=>{
                     id: users[i].id,
                     name: users[i].firstName + " " + users[i].lastName,
                     include: true,
-                    username: users[i].username
+                    username: users[i].username,
+                    image: users[i].image
                 });
             }else{
                 arrayUserFalse.push({
                     id: users[i].id,
                     name: users[i].firstName + " " + users[i].lastName,
                     include: false,
-                    username: users[i].username
+                    username: users[i].username,
+                    image: users[i].image
                 });
             }
         }
@@ -174,7 +176,7 @@ exports.postUsersByRol = async(req,res)=>{
         });
         const params = req.body;
         const idsArray = params;
-        
+
         for(let i= 0; i<idsArray.length; i++){
             let data = {
                 UserId: idsArray[i].id,
