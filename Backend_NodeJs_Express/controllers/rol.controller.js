@@ -160,4 +160,19 @@ exports.getUsersByAdmin = async(req, res)=>{
         console.log(err);
         return err;
     }
+};
+
+exports.updateUsersByRol = async(req,res)=>{
+    try {
+        const idRol = req.params.idRol;
+        const deleteUser_Rol = await User_Rol.destroy({
+            where:{
+                RolId: idRol
+            }
+        })
+        
+    } catch (error) {
+        console.log(err);
+        return err;
+    }
 }

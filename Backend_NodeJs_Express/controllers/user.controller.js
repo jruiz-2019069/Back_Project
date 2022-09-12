@@ -56,7 +56,7 @@ exports.register = async (req, res) => {
 
         //Asignar al menos un rol
         const idsRol = params.idsRol;
-        if(idsRol.length == 0 ) return res.status(400).send({message: "You must assign at least one role"});
+        if(idsRol == undefined || idsRol.length == 0 ) return res.status(400).send({message: "You must assign at least one role"});
 
         const user = await User.create(data);
         await user.save();
