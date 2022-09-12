@@ -14,6 +14,7 @@ router.put('/deleteUser/:idUser', UserController.deleteUser);
 router.put('/updateUser/:idUser', UserController.updateUser);
 router.put('/updatePasswordByAdmin/:idUser', UserController.updatePasswordByAdmin);
 
+
 router.get('/getImage/:fileName', upload, UserController.getImage);
 
 module.exports = router;

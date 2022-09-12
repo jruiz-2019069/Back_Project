@@ -142,12 +142,14 @@ exports.getUsersByAdmin = async(req, res)=>{
 
             if(arrayNumbers.includes(users[i].id)){
                 arrayUserTrue.push({
+                    id: users[i].id,
                     name: users[i].firstName + " " + users[i].lastName,
                     include: true,
                     username: users[i].username
                 });
             }else{
                 arrayUserFalse.push({
+                    id: users[i].id,
                     name: users[i].firstName + " " + users[i].lastName,
                     include: false,
                     username: users[i].username
@@ -162,17 +164,30 @@ exports.getUsersByAdmin = async(req, res)=>{
     }
 };
 
-exports.updateUsersByRol = async(req,res)=>{
+exports.postUsersByRol = async(req,res)=>{
     try {
         const idRol = req.params.idRol;
         const deleteUser_Rol = await User_Rol.destroy({
             where:{
+                RolId: [idRol]
+            }
+        });
+        const params = req.body;
+        const idsArray = params;
+        
+        for(let i= 0; i<idsArray.length; i++){
+            let data = {
+                UserId: idsArray[i].id,
                 RolId: idRol
             }
-        })
+            const user_rol = await User_Rol.build(data);
+            await user_rol.save()
+        };
+        
+        return res.status(200).send({message:"Saved successfully"});
         
     } catch (error) {
-        console.log(err);
-        return err;
+        console.log(error);
+        return error;
     }
 }
