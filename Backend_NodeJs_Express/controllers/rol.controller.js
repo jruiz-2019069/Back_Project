@@ -128,6 +128,7 @@ exports.getUsersByAdmin = async(req, res)=>{
             }
         });
         for(let i = 0; i < users.length; i++){
+            //Se almacenan todos los usuarios perteneciente al rol seleccionado
             const usersId = await User_Rol.findAll({
                 where: {
                     RolId: idRol
@@ -141,17 +142,19 @@ exports.getUsersByAdmin = async(req, res)=>{
 
             if(arrayNumbers.includes(users[i].id)){
                 arrayUserTrue.push({
-                    name: users[i].firstName,
-                    include: true
+                    name: users[i].firstName + " " + users[i].lastName,
+                    include: true,
+                    username: users[i].username
                 });
             }else{
                 arrayUserFalse.push({
-                    name: users[i].firstName,
-                    include: false
+                    name: users[i].firstName + " " + users[i].lastName,
+                    include: false,
+                    username: users[i].username
                 });
             }
         }
-        let newArray = arrayUserTrue.concat(arrayUserFalse);
+        const newArray = arrayUserTrue.concat(arrayUserFalse);
         return res.status(200).send({newArray});
     } catch (err) {
         console.log(err);
