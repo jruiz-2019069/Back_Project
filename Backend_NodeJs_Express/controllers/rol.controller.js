@@ -2,11 +2,12 @@ const validate = require("../utils/validate");
 const Rol = require("../models/Rol.model");
 const User_Rol = require("../models/User_Rol.model");
 const User = require("../models/User.model");
+const Role_Function = require("../models/Role_Functions.model");
 
 // INSERT
 exports.createRol = async (req, res) => {
     try {
-        const { name, description, ids } = req.body;
+        const { name, description, ids, idsPermissions } = req.body;
         const data = {
             name,
             description
@@ -29,6 +30,16 @@ exports.createRol = async (req, res) => {
             }
             let user_rol = await User_Rol.build(data);
             await user_rol.save();
+        }
+        
+        // Agregarle al rol nuevo las funciones deseadas
+        for(let i = 0; i < idsPermissions.length; i++){
+            let data = {
+                FunctionId: idsPermissions[i],
+                RolId: role.id
+            }
+            let role_function = await Role_Function.build(data);
+            await role_function.save();
         }
         return res.status(200).send({message: "Rol created."});
     } catch (err) {

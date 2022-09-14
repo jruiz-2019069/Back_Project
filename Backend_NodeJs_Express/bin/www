@@ -9,7 +9,7 @@ var debug = require('debug')('backend-nodejs-express:server');
 var http = require('http');
 require("../bin/sequelize");
 require("../asociations");
-
+var functionController = require("../controllers/function.controller"); 
 
 /**
  * Get port from environment and store in Express.
@@ -91,4 +91,5 @@ function onListening() {
   : 'port ' + addr.port;
   debug('Listening on ' + bind);
   console.log(`Servidor corriendo en puerto: ${port}`);
+  functionController.insertsFunctions();
 }
