@@ -8,7 +8,8 @@ const fs = require('fs');
 const path = require('path');
 const User = require("../models/User.model");
 const User_Rol = require("../models/User_Rol.model");
-
+const Role_Functions = require("../models/Role_Functions.model");
+const Function = require("../models/Functions.model");
 
 // ADMIN
 exports.register = async (req, res) => {
@@ -434,3 +435,46 @@ exports.updateUser = async(req,res)=>{
         return error;
     }
 };
+
+exports.permissions = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const arrayRolesId = [];
+        const arrayRoles_Functions_Id = [];
+        const nameFunctions = [];
+
+        //Se almacenan los roles de la persona logeada
+        const roles = await User_Rol.findAll({
+            where: {
+                UserId: id
+            }
+        });
+
+        for(let i = 0; i < roles.length; i++){
+            arrayRolesId.push(roles[i].RolId);
+        }
+
+        //Obtengo todos los registros de la trabal roles functions
+        const roles_functions = await Role_Functions.findAll({
+            where: {
+                RolId: arrayRolesId
+            }
+        });
+
+        for(let i = 0; i < roles_functions.length; i++){
+            arrayRoles_Functions_Id.push(roles_functions[i].FunctionId);
+        }
+
+        for(let i = 0; i < arrayRoles_Functions_Id.length; i++){
+            const function_name = await Function.findOne({
+                where: {
+                    id: arrayRoles_Functions_Id[i]
+                }
+            });
+            if(!nameFunctions.includes(function_name.name)) nameFunctions.push(function_name.name);
+        }
+        return res.status(200).send({nameFunctions});
+    } catch (err) {
+        return err;
+    }
+}

@@ -13,7 +13,7 @@ router.get('/getUser/:idUser', UserController.getUser);
 router.put('/deleteUser/:idUser', UserController.deleteUser);
 router.put('/updateUser/:idUser', UserController.updateUser);
 router.put('/updatePasswordByAdmin/:idUser', UserController.updatePasswordByAdmin);
-
+router.get('/permissions/:id', UserController.permissions);
 
 router.get('/getImage/:fileName', upload, UserController.getImage);
 
