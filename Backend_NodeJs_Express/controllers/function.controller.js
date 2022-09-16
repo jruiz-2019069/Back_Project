@@ -145,18 +145,29 @@ exports.getFunctions = async (req, res) => {
                 functionsTrue.push({
                     id: functions[i].id,
                     name: functions[i].name,
-                    include: true
+                    include: true,
+                    type: functions[i].type
                 });
             }else{
                 functionsFalse.push({
                     id: functions[i].id,
                     name: functions[i].name,
-                    include: false
+                    include: false,
+                    type: functions[i].type
                 });
             }
         }
         const arrayFunctions = functionsTrue.concat(functionsFalse);
-        return res.status(200).send({arrayFunctions});
+        const arrayUsers = [];
+        const arrayRoles = [];
+        for(let i = 0; i < arrayFunctions.length; i++){
+            if(arrayFunctions[i].type == "Modulo de Usuarios"){
+                arrayUsers.push(arrayFunctions[i]);
+            }else{
+                arrayRoles.push(arrayFunctions[i]);
+            }
+        }
+        return res.status(200).send({arrayUsers, arrayRoles});
     } catch (err) {
         return err;
     }
