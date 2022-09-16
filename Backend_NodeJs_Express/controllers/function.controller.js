@@ -182,8 +182,8 @@ exports.assignPermissions = async (req, res) => {
             }
         });
         const params = req.body;
-        //Se almacenan todas la funciones (Objeto completo) seleccionadas para dicho rol
-        const idsPermissionsArray = params.idsPermissionsArray;
+        //Se almacenan todas la funciones (Id unicamente) seleccionadas para dicho rol
+        const idsPermissionsArray = params;
         for(let i = 0; i < idsPermissionsArray.length; i++){
             let data = {
                 FunctionId: idsPermissionsArray[i],
