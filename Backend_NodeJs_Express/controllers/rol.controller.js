@@ -208,8 +208,6 @@ exports.postUsersByRol = async(req,res)=>{
 
 exports.getFunctions = async (req, res) => {
     try {
-        let arrayFunctionUsers = [];
-        let arrayFunctionRoles = [];
         const functionsUsers = await Function.findAll({
             where: {
                 type: "Modulo de Usuarios"
