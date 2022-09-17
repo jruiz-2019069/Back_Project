@@ -11,6 +11,6 @@ router.delete("/deleteRol/:id", rolController.deleteRol);
 router.post("/postUsersByRol/:idRol", rolController.postUsersByRol)
 
 router.get('/getUsersByAdmin/:idRol', rolController.getUsersByAdmin);
-
+router.get('/getFunctions', rolController.getFunctions);
 
 module.exports = router;

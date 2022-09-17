@@ -3,6 +3,7 @@ const Rol = require("../models/Rol.model");
 const User_Rol = require("../models/User_Rol.model");
 const User = require("../models/User.model");
 const Role_Function = require("../models/Role_Functions.model");
+const Function = require("../models/Functions.model");
 
 // INSERT
 exports.createRol = async (req, res) => {
@@ -202,5 +203,25 @@ exports.postUsersByRol = async(req,res)=>{
     } catch (error) {
         console.log(error);
         return error;
+    }
+}
+
+exports.getFunctions = async (req, res) => {
+    try {
+        let arrayFunctionUsers = [];
+        let arrayFunctionRoles = [];
+        const functionsUsers = await Function.findAll({
+            where: {
+                type: "Modulo de Usuarios"
+            }
+        });
+        const functionsRoles = await Function.findAll({
+            where: {
+                type: "Modulo de Roles"
+            }
+        });
+        return res.status(200).send({functionsUsers, functionsRoles});
+    } catch (err) {
+        console.log(err);
     }
 }
