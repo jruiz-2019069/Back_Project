@@ -20,7 +20,7 @@ exports.arrayFunctions = () => {
     const arrayFunctions = [
         // USERS
         {
-            name: "getUsuarios",
+            name: "Get users",
             description: "",
             frontendPage: "",
             frontendComponent: "",
@@ -28,7 +28,7 @@ exports.arrayFunctions = () => {
             type: "Modulo de Usuarios"
         },
         {
-            name: "createUser",
+            name: "User creation",
             description: "",
             frontendPage: "",
             frontendComponent: "",
@@ -36,7 +36,7 @@ exports.arrayFunctions = () => {
             type: "Modulo de Usuarios"
         },
         {
-            name: "passwordChange",
+            name: "Change of password",
             description: "",
             frontendPage: "",
             frontendComponent: "",
@@ -44,7 +44,7 @@ exports.arrayFunctions = () => {
             type: "Modulo de Usuarios"
         },
         {
-            name: "isLocked",
+            name: "User blocking",
             description: "",
             frontendPage: "",
             frontendComponent: "",
@@ -52,7 +52,7 @@ exports.arrayFunctions = () => {
             type: "Modulo de Usuarios"
         },
         {
-            name: "editUser",
+            name: "User Edition",
             description: "",
             frontendPage: "",
             frontendComponent: "",
@@ -60,7 +60,7 @@ exports.arrayFunctions = () => {
             type: "Modulo de Usuarios"
         },
         {
-            name: "deleteUser",
+            name: "Deletion of users",
             description: "",
             frontendPage: "",
             frontendComponent: "",
@@ -69,7 +69,7 @@ exports.arrayFunctions = () => {
         },
         // ROLES
         {
-            name: "getRoles",
+            name: "Role creation",
             description: "",
             frontendPage: "",
             frontendComponent: "",
@@ -77,7 +77,7 @@ exports.arrayFunctions = () => {
             type: "Modulo de Roles"
         },
         {
-            name: "getUsersByRol",
+            name: "Get Roles",
             description: "",
             frontendPage: "",
             frontendComponent: "",
@@ -85,7 +85,7 @@ exports.arrayFunctions = () => {
             type: "Modulo de Roles"
         },
         {
-            name: "permissions",
+            name: "Get users by role",
             description: "",
             frontendPage: "",
             frontendComponent: "",
@@ -93,7 +93,7 @@ exports.arrayFunctions = () => {
             type: "Modulo de Roles"
         },
         {
-            name: "editRol",
+            name: "Permission Assignment",
             description: "",
             frontendPage: "",
             frontendComponent: "",
@@ -101,7 +101,7 @@ exports.arrayFunctions = () => {
             type: "Modulo de Roles"
         },
         {
-            name: "deleteRol",
+            name: "Role edition",
             description: "",
             frontendPage: "",
             frontendComponent: "",
@@ -109,13 +109,13 @@ exports.arrayFunctions = () => {
             type: "Modulo de Roles"
         },
         {
-            name: "createRol",
+            name: "Role removal",
             description: "",
             frontendPage: "",
             frontendComponent: "",
             backend: "",
             type: "Modulo de Roles"
-        },
+        }
     ];
     return arrayFunctions;
 }

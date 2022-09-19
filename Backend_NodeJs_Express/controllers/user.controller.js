@@ -2,7 +2,7 @@ const validate = require('../utils/validate');
 const jwt = require("../middlewares/jwt");
 const moment = require("moment");
 const nodemailer = require('nodemailer');
-const {v4: uuidv4} = require("uuid");
+const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
 const fs = require('fs');
 const path = require('path');
@@ -15,7 +15,7 @@ const Function = require("../models/Functions.model");
 exports.register = async (req, res) => {
     try {
         const params = req.body;
-        const tempPassword = uuidv4().substring(0,8);
+        const tempPassword = uuidv4().substring(0, 8);
         let data = {
             username: params.username,
             firstName: params.firstName,
@@ -30,26 +30,31 @@ exports.register = async (req, res) => {
             needChangePassword: true
         }
         const msg = validate.validateData(data);
-        if(msg) return res.status(400).send(msg);
-        
+        if (msg) return res.status(400).send(msg);
+
         data.username = data.username.toUpperCase();
         data.mail = data.mail.toLowerCase();
-        
+
         const userName = await User.findOne({
             where: {
                 username: data.username
             }
-        });  
+        });
         const mail = await User.findOne({
             where: {
                 mail: data.mail
             }
         });
-        if(userName && mail){
-            return res.status(400).send({message: "Username and email already exist."});
+
+        const validateEmail = p => p.search(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+
+        if(validateEmail(data.mail)) return res.status(400).send({ message: "Email is invalid. Please enter a valid mail." });
+
+        if (userName && mail && mail.deleted == false) {
+            return res.status(400).send({ message: "Username and email already exist." });
         }
-        if(userName) return res.status(400).send({message: "Username already exist."});
-        if(mail) return res.status(400).send({message: "Email already exist."});
+        if (userName) return res.status(400).send({ message: "Username already exist." });
+        if (mail && mail.deleted == false) return res.status(400).send({ message: "Email already exist." });
         data.image = "";
         data.resetPasswordToken = "";
         data.activateUserToken = "";
@@ -57,13 +62,13 @@ exports.register = async (req, res) => {
 
         //Asignar al menos un rol
         const idsRol = params.idsRol;
-        if(idsRol == undefined || idsRol.length == 0 ) return res.status(400).send({message: "You must assign at least one role"});
+        if (idsRol == undefined || idsRol.length == 0) return res.status(400).send({ message: "You must assign at least one role" });
 
         const user = await User.create(data);
         await user.save();
 
         //Agregarle al usuario los roles que desee
-        for(let i = 0; i < idsRol.length; i++){
+        for (let i = 0; i < idsRol.length; i++) {
             let data = {
                 UserId: user.id,
                 RolId: idsRol[i]
@@ -73,10 +78,10 @@ exports.register = async (req, res) => {
         };
 
         let emailSend = (/true/i).test(params.sendEmail);
-        if(emailSend) this.sendCredentials(user, tempPassword);
-        if(req.files.image){
+        if (emailSend) this.sendCredentials(user, tempPassword);
+        if (req.files.image) {
             const alreadyImage = await User.findOne({
-                where:{
+                where: {
                     id: user.id
                 }
             });
@@ -92,22 +97,23 @@ exports.register = async (req, res) => {
 
             const extension = fileName.split('\.'); // extension = ['file_name', 'ext']
             const fileExt = extension[1]; // fileExt = ext;
-            
+
             const validExt = await validate.validExtension(fileExt, filePath);
 
             if (validExt === false) {
                 return res.status(400).send({ message: 'Invalid extension' });
             } else {
                 const userUpdate = await User.update({
-                    image: fileName}
-                ,{
-                    where:{
-                        id:user.id
-                    }
-                });
-                if(!userUpdate) return res.status(400).send({message: 'User cant updated'});
+                    image: fileName
+                }
+                    , {
+                        where: {
+                            id: user.id
+                        }
+                    });
+                if (!userUpdate) return res.status(400).send({ message: 'User cant updated' });
                 console.log("Image created.");
-            } 
+            }
         }
         const newUser = await User.findOne({
             where: {
@@ -115,7 +121,7 @@ exports.register = async (req, res) => {
             }
         });
 
-        return res.send({message: "User created.", newUser});
+        return res.send({ message: "User created.", newUser });
     } catch (error) {
         console.log(error);
         return error;
@@ -141,10 +147,10 @@ exports.getImage = async (req, res) => {
 }
 
 //ENVIAR CREDENCIALES POR CORREO
-exports.sendCredentials = async (user, tempPassword) =>{
+exports.sendCredentials = async (user, tempPassword) => {
     try {
         let transporter = nodemailer.createTransport({
-            service:'gmail',
+            service: 'gmail',
             secure: true,
             auth: {
                 user: process.env.USERMAIL,
@@ -156,18 +162,18 @@ exports.sendCredentials = async (user, tempPassword) =>{
             from: process.env.FROM_MAIL,
             to: user.mail,
             subject: `Bienvenido `,
-            html:  'Hola' + ' ' + user.firstName + ' ' + user.lastName + ', ' + 'gusto en saludarte,' + 
-            ' <br>' +
-            ' <br>' + '• Usuario:'+ ' ' +  user.username + 
-            ' <br>' + '• Tu contraseña temporal es:' + ' ' + tempPassword + 
-            ' <br>' +  
-            ' <br>' + 'Saludos Cordiales,'
+            html: 'Hola' + ' ' + user.firstName + ' ' + user.lastName + ', ' + 'gusto en saludarte,' +
+                ' <br>' +
+                ' <br>' + '• Usuario:' + ' ' + user.username +
+                ' <br>' + '• Tu contraseña temporal es:' + ' ' + tempPassword +
+                ' <br>' +
+                ' <br>' + 'Saludos Cordiales,'
         };
 
         transporter.sendMail(mail_options, (error, info) => {
             if (error) console.log(error);
             console.log('El correo se envío correctamente ' + info.response);
-        });  
+        });
     } catch (error) {
         console.log(error);
         return error;
@@ -182,22 +188,22 @@ exports.login = async (req, res) => {
             password: params.password
         }
         const msg = validate.validateData(data);
-        if(msg) return res.status(400).send(msg);
+        if (msg) return res.status(400).send(msg);
 
         data.username.toLowerCase();
         const usernameExist = await User.findOne({
             where: {
-                username: data.username 
+                username: data.username
             }
         });
-        if(!usernameExist) return res.status(400).send({message: "Invalid credentials"});
-        if(usernameExist.deleted) return res.status(400).send({message: "Invalid credentials"});
+        if (!usernameExist) return res.status(400).send({ message: "Invalid credentials" });
+        if (usernameExist.deleted) return res.status(400).send({ message: "Invalid credentials" });
 
         //SI LA CUENTA ESTÁ BLOQUEADA
-        if(usernameExist.isLocked){
+        if (usernameExist.isLocked) {
             // PRUEBA LOCKED
-            if(usernameExist.lockUntil == 0) return res.status(400).send({message: "Your account has been blocked by an administrator."});
-            if(moment().unix() < usernameExist.lockUntil) return res.status(400).send({message: "Your account is still locked."});
+            if (usernameExist.lockUntil == 0) return res.status(400).send({ message: "Your account has been blocked by an administrator." });
+            if (moment().unix() < usernameExist.lockUntil) return res.status(400).send({ message: "Your account is still locked." });
 
             let lockedUpdated = await User.update({
                 isLocked: false,
@@ -210,12 +216,12 @@ exports.login = async (req, res) => {
             });
             const newUserSearch = await User.findOne({
                 where: {
-                    username: data.username 
+                    username: data.username
                 }
             });
             console.log(newUserSearch.loginAttemps);
             //SI LOS PARAMETROS SON CORRECTOS
-            if(await validate.checkPassword(params.password, newUserSearch.password)){
+            if (await validate.checkPassword(params.password, newUserSearch.password)) {
                 //SE CREA EL TOKEN
                 let token = await jwt.createToken(newUserSearch);
                 //ACTUALIZAR EL LOGIN ATTEPMT A 0 e ingresar el token
@@ -227,10 +233,10 @@ exports.login = async (req, res) => {
                         id: newUserSearch.id
                     }
                 });
-                return res.status(200).send({message: "Logged In", token, newUserSearch});
+                return res.status(200).send({ message: "Logged In", token, newUserSearch });
             }
             //SI LOS PARAMETROS SON INCORRECTOS
-            if(newUserSearch.loginAttemps < parseInt(process.env.ATTEMPTS)){
+            if (newUserSearch.loginAttemps < parseInt(process.env.ATTEMPTS)) {
                 let loginAttemps = newUserSearch.loginAttemps;
                 const attempsUpdated = await User.update({
                     loginAttemps: loginAttemps + 1
@@ -239,7 +245,7 @@ exports.login = async (req, res) => {
                         id: newUserSearch.id
                     }
                 });
-                return res.status(400).send({message: `Invalid credentials. Remaining attempts: ${3-(newUserSearch.loginAttemps+1)}`});
+                return res.status(400).send({ message: `Invalid credentials. Remaining attempts: ${3 - (newUserSearch.loginAttemps + 1)}` });
             }
             const locked = await User.update({
                 isLocked: true,
@@ -249,11 +255,11 @@ exports.login = async (req, res) => {
                     id: newUserSearch.id
                 }
             });
-            return res.status(400).send({message: `Your account has been locked for ${((parseInt(process.env.TIMELOCKED))/60).toFixed(2)} min.`});
+            return res.status(400).send({ message: `Your account has been locked for ${((parseInt(process.env.TIMELOCKED)) / 60).toFixed(2)} min.` });
         }
 
         //SI LA CUENTA "NO" ESTÁ BLOQUEADA
-        if(await validate.checkPassword(params.password, usernameExist.password)){
+        if (await validate.checkPassword(params.password, usernameExist.password)) {
             //SE CREA EL TOKEN
             const token = await jwt.createToken(usernameExist);
             //ACTUALIZAR EL LOGIN ATTEPMT A 0 e ingresar el token
@@ -265,10 +271,10 @@ exports.login = async (req, res) => {
                     id: usernameExist.id
                 }
             });
-            return res.status(200).send({message: "Logged In", token, usernameExist});
+            return res.status(200).send({ message: "Logged In", token, usernameExist });
         }
         //SI AUN NO HA TERMINADO SUS INTENTOS
-        if(usernameExist.loginAttemps < parseInt(process.env.ATTEMPTS)){
+        if (usernameExist.loginAttemps < parseInt(process.env.ATTEMPTS)) {
             let loginAttemps = usernameExist.loginAttemps;
             const attempsUpdated = await User.update({
                 loginAttemps: loginAttemps + 1
@@ -277,7 +283,7 @@ exports.login = async (req, res) => {
                     id: usernameExist.id
                 }
             });
-            return res.status(400).send({message: `Invalid credentials. Remaining attempts: ${3-(usernameExist.loginAttemps+1)}`});
+            return res.status(400).send({ message: `Invalid credentials. Remaining attempts: ${3 - (usernameExist.loginAttemps + 1)}` });
         }
         //SI YA TERMINÓ SUS INTENTOS
         const locked = await User.update({
@@ -288,8 +294,8 @@ exports.login = async (req, res) => {
                 id: usernameExist.id
             }
         });
-        return res.status(400).send({message: `Your account has been locked for ${((parseInt(process.env.TIMELOCKED))/60).toFixed(2)} min.`});
-  
+        return res.status(400).send({ message: `Your account has been locked for ${((parseInt(process.env.TIMELOCKED)) / 60).toFixed(2)} min.` });
+
     } catch (error) {
         console.log(error);
         return error;
@@ -301,15 +307,15 @@ exports.updatePassword = async (req, res) => {
     try {
         const { newPassword, confirmPassword, idUser } = req.body;
         //Función para verificar si una contraseña es segura.
-        const isStrongPassword = p => p.search(/^((?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$)(?=.*[;:\.,!¡\?¿@#\$%\^&\-_+=\(\)\[\]\{\}])).{8,20}$/)!=-1;
+        const isStrongPassword = p => p.search(/^((?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\S+$)(?=.*[;:\.,!¡\?¿@#\$%\^&\-_+=\(\)\[\]\{\}])).{8,20}$/) != -1;
         const data = {
             newPassword,
             confirmPassword
         }
         const msg = validate.validateData(data);
-        if(msg) return res.status(400).send(msg);
-        if(!isStrongPassword(newPassword)) return res.status(400).send({message: "The password does not meet the requirements."});
-        if(newPassword != confirmPassword) return res.status(400).send({message: "There is no match between the passwords."});
+        if (msg) return res.status(400).send(msg);
+        if (!isStrongPassword(newPassword)) return res.status(400).send({ message: "The password does not meet the requirements." });
+        if (newPassword != confirmPassword) return res.status(400).send({ message: "There is no match between the passwords." });
         // Se actualiza la contraseña del ususario
         const userUpdated = await User.update({
             password: await validate.encrypt(newPassword),
@@ -319,7 +325,7 @@ exports.updatePassword = async (req, res) => {
                 id: idUser
             }
         });
-        return res.status(200).send({message: "Password updated."});
+        return res.status(200).send({ message: "Password updated." });
     } catch (error) {
         console.log(error);
         return error;
@@ -330,7 +336,7 @@ exports.updatePassword = async (req, res) => {
 exports.updatePasswordByAdmin = async (req, res) => {
     try {
         const idUser = req.params.idUser;
-        const tempPassword = uuidv4().substring(0,8);
+        const tempPassword = uuidv4().substring(0, 8);
         const user = await User.findOne({
             where: {
                 id: idUser
@@ -345,7 +351,7 @@ exports.updatePasswordByAdmin = async (req, res) => {
             }
         });
         this.sendCredentials(user, tempPassword);
-        return res.status(200).send({message: "Password change request made."});
+        return res.status(200).send({ message: "Password change request made." });
     } catch (error) {
         console.log(error);
         return error;
@@ -353,14 +359,14 @@ exports.updatePasswordByAdmin = async (req, res) => {
 }
 
 //Listar Usuarios
-exports.getUsers = async(req, res) =>{
+exports.getUsers = async (req, res) => {
     try {
         const users = await User.findAll({
-            where:{
+            where: {
                 deleted: false
             }
         });
-        return res.status(200).send({users})
+        return res.status(200).send({ users })
     } catch (error) {
         console.log(error);
         return error;
@@ -368,15 +374,15 @@ exports.getUsers = async(req, res) =>{
 };
 
 //Listar un usuario
-exports.getUser =async(req,res)=>{
+exports.getUser = async (req, res) => {
     try {
         const idUser = req.params.idUser;
         const user = await User.findOne({
-            where:{
+            where: {
                 id: idUser
             }
         });
-        return res.status(200).send({user})
+        return res.status(200).send({ user })
 
     } catch (error) {
         console.log(error);
@@ -385,24 +391,24 @@ exports.getUser =async(req,res)=>{
 }
 
 //Eliminar Usuario (nivel lógico)
-exports.deleteUser = async(req,res)=>{
+exports.deleteUser = async (req, res) => {
     try {
         const idUser = req.params.idUser;
         const userExist = await User.findOne({
-            where:{
+            where: {
                 id: idUser
             }
         });
-        if(!userExist) return res.status(400).send({message:'User not found'});
+        if (!userExist) return res.status(400).send({ message: 'User not found' });
 
         const userUpdate = await User.update({
             deleted: true
-        },{
-            where:{
+        }, {
+            where: {
                 id: idUser
             }
         })
-        return res.status(200).send({message: 'User Deleted'});
+        return res.status(200).send({ message: 'User Deleted' });
     } catch (error) {
         console.log(error);
         return error;
@@ -410,26 +416,26 @@ exports.deleteUser = async(req,res)=>{
 };
 
 //Actualizar Usuario
-exports.updateUser = async(req,res)=>{
+exports.updateUser = async (req, res) => {
     try {
         const idUser = req.params.idUser;
         const params = req.body
 
         const userExist = await User.findOne({
-            where:{
+            where: {
                 id: idUser
             }
         });
-        if(!userExist) return res.status(400).send({message:'User not found'});
+        if (!userExist) return res.status(400).send({ message: 'User not found' });
         //No se permite actualizar el username
         const userUpdate = await User.update(
             params
-        ,{
-            where:{
-                id:idUser
-            }
-        });
-        return res.status(200).send({message: 'User Updated'});
+            , {
+                where: {
+                    id: idUser
+                }
+            });
+        return res.status(200).send({ message: 'User Updated' });
     } catch (error) {
         console.log(error);
         return error;
@@ -450,7 +456,7 @@ exports.permissions = async (req, res) => {
             }
         });
 
-        for(let i = 0; i < roles.length; i++){
+        for (let i = 0; i < roles.length; i++) {
             arrayRolesId.push(roles[i].RolId);
         }
 
@@ -461,19 +467,19 @@ exports.permissions = async (req, res) => {
             }
         });
 
-        for(let i = 0; i < roles_functions.length; i++){
+        for (let i = 0; i < roles_functions.length; i++) {
             arrayRoles_Functions_Id.push(roles_functions[i].FunctionId);
         }
 
-        for(let i = 0; i < arrayRoles_Functions_Id.length; i++){
+        for (let i = 0; i < arrayRoles_Functions_Id.length; i++) {
             const function_name = await Function.findOne({
                 where: {
                     id: arrayRoles_Functions_Id[i]
                 }
             });
-            if(!nameFunctions.includes(function_name.name)) nameFunctions.push(function_name.name);
+            if (!nameFunctions.includes(function_name.name)) nameFunctions.push(function_name.name);
         }
-        return res.status(200).send({nameFunctions});
+        return res.status(200).send({ nameFunctions });
     } catch (err) {
         return err;
     }
