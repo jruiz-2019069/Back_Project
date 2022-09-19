@@ -10,7 +10,21 @@ var usersRouter = require('./routes/users');
 var roleRouter = require("./routes/rol");
 var functionRouter = require("./routes/functions");
 
+const i18next = require("i18next");
+const Backend = require("i18next-fs-backend");
+const middleware = require("i18next-http-middleware");
+
+i18next.use(Backend).use(middleware.LanguageDetector)
+  .init({
+    fallbackLng: 'en',
+    backend: {
+      loadPath: './locales/{{lng}}/translation.json'
+    }
+  })
+
 var app = express();
+
+app.use(middleware.handle(i18next));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

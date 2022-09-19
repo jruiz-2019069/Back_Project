@@ -408,7 +408,8 @@ exports.deleteUser = async (req, res) => {
                 id: idUser
             }
         })
-        return res.status(200).send({ message: 'User Deleted' });
+        
+        return res.status(200).send({ message: req.t('user_deleted_success') });
     } catch (error) {
         console.log(error);
         return error;
@@ -435,7 +436,8 @@ exports.updateUser = async (req, res) => {
                     id: idUser
                 }
             });
-        return res.status(200).send({ message: 'User Updated' });
+            console.log(req.headers);
+        return res.status(200).send({ message: req.t('user_deleted_success') });
     } catch (error) {
         console.log(error);
         return error;
