@@ -1,3 +1,5 @@
 {
-    "user_deleted_success": "User deleted successfully"
+    "user_deleted_200": "User deleted successfully",
+    "user_register_success": "User created",
+    "updateUser_200": "User updated"
 }

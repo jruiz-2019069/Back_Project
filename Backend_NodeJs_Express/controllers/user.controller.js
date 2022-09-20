@@ -121,7 +121,7 @@ exports.register = async (req, res) => {
             }
         });
 
-        return res.send({ message: "User created.", newUser });
+        return res.send({ message: req.t('user_register_success'), newUser });
     } catch (error) {
         console.log(error);
         return error;
@@ -409,7 +409,7 @@ exports.deleteUser = async (req, res) => {
             }
         })
         
-        return res.status(200).send({ message: req.t('user_deleted_success') });
+        return res.status(200).send({ message: req.t('user_deleted_200') });
     } catch (error) {
         console.log(error);
         return error;
@@ -437,7 +437,7 @@ exports.updateUser = async (req, res) => {
                 }
             });
             console.log(req.headers);
-        return res.status(200).send({ message: req.t('user_deleted_success') });
+        return res.status(200).send({ message: req.t('updateUser_200') });
     } catch (error) {
         console.log(error);
         return error;
