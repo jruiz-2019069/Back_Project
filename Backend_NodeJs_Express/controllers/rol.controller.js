@@ -186,8 +186,8 @@ exports.postUsersByRol = async(req,res)=>{
                 RolId: [idRol]
             }
         });
-        const params = req.body;
-        const idsArray = params;
+        
+        const idsArray = req.body.idsArray;
 
         for(let i= 0; i<idsArray.length; i++){
             let data = {
