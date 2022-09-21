@@ -7,7 +7,7 @@ router.post("/createRol", rolController.createRol);
 router.get("/getRoles", rolController.getRoles);
 router.get("/getRol/:id", rolController.getRole);
 router.put("/updateRol/:id", rolController.updateRol);
-router.delete("/deleteRol/:id", rolController.deleteRol);
+router.put("/deleteRol/:id", rolController.deleteRol);
 router.post("/postUsersByRol/:idRol", rolController.postUsersByRol)
 
 router.get('/getUsersByAdmin/:idRol', rolController.getUsersByAdmin);

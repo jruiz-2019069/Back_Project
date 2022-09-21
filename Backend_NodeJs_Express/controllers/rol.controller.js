@@ -20,7 +20,7 @@ exports.createRol = async (req, res) => {
                 name: name
             }
         });
-        if(searchRol) return res.status(400).send({message: "Rol already exist."});
+        if(searchRol) return res.status(400).send({message: res.i18n.t('create_400')});
         const role = await Rol.create(data);
         await role.save();
         //Agregarle al rol nuevo los usuarios deseados
@@ -42,7 +42,7 @@ exports.createRol = async (req, res) => {
             let role_function = await Role_Function.build(data);
             await role_function.save();
         }
-        return res.status(200).send({message: "Rol created."});
+        return res.status(200).send({message: res.i18n.t('create_200')});
     } catch (err) {
         console.log(err);
         return err;
@@ -90,13 +90,13 @@ exports.updateRol = async (req, res) => {
                 id: idRol
             }
         });
-        if(rolExistName && rolExistId.name != params.name) return res.status(400).send({message: "Rol already exist."});
+        if(rolExistName && rolExistId.name != params.name) return res.status(400).send({message: res.i18n.t('update_rol_400')});
         const rolUpdated = await Rol.update(params, {
             where: {
                 id: idRol
             }
         });
-        return res.status(200).send({message: "Rol updated"});
+        return res.status(200).send({message: res.i18n.t('update_rol_200')});
     } catch (err) {
         console.log(err);
         return err;
@@ -112,14 +112,14 @@ exports.deleteRol = async (req, res) => {
                 RolId: idRol
             }
         })
-        if(searchRol) return res.status(400).send({message:'You can not delete this role'});
+        if(searchRol) return res.status(400).send({message:res.i18n.t('delete_rol_400')});
 
         const deleteRol = await Rol.destroy({
             where: {
                 id: idRol
             }
         });
-        return res.status(200).send({message: "Rol deleted"});
+        return res.status(200).send({message: res.i18n.t('delete_rol_200')});
     } catch (err) {
         console.log(err);
         return err;
@@ -198,7 +198,7 @@ exports.postUsersByRol = async(req,res)=>{
             await user_rol.save()
         };
         
-        return res.status(200).send({message:"Saved successfully"});
+        return res.status(200).send({message: res.i18n.t('Post_user_200')});
         
     } catch (error) {
         console.log(error);

@@ -48,13 +48,13 @@ exports.register = async (req, res) => {
 
         const validateEmail = p => p.search(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
 
-        if(validateEmail(data.mail)) return res.status(400).send({ message: "Email is invalid. Please enter a valid mail." });
+        if(validateEmail(data.mail)) return res.status(400).send({ message: res.i18n.t('register_400') });
 
         if (userName && mail && mail.deleted == false) {
-            return res.status(400).send({ message: "Username and email already exist." });
+            return res.status(400).send({ message: res.i18n.t('register_401') });
         }
-        if (userName) return res.status(400).send({ message: "Username already exist." });
-        if (mail && mail.deleted == false) return res.status(400).send({ message: "Email already exist." });
+        if (userName) return res.status(400).send({ message: res.i18n.t('register_402') });
+        if (mail && mail.deleted == false) return res.status(400).send({ message: res.i18n.t('register_403') });
         data.image = "";
         data.resetPasswordToken = "";
         data.activateUserToken = "";
@@ -62,7 +62,7 @@ exports.register = async (req, res) => {
 
         //Asignar al menos un rol
         const idsRol = params.idsRol;
-        if (idsRol == undefined || idsRol.length == 0) return res.status(400).send({ message: "You must assign at least one role" });
+        if (idsRol == undefined || idsRol.length == 0) return res.status(400).send({ message: res.i18n.t('register_404') });
 
         const user = await User.create(data);
         await user.save();
@@ -101,7 +101,7 @@ exports.register = async (req, res) => {
             const validExt = await validate.validExtension(fileExt, filePath);
 
             if (validExt === false) {
-                return res.status(400).send({ message: 'Invalid extension' });
+                return res.status(400).send({ message: res.i18n.t('register_405') });
             } else {
                 const userUpdate = await User.update({
                     image: fileName
@@ -111,7 +111,7 @@ exports.register = async (req, res) => {
                             id: user.id
                         }
                     });
-                if (!userUpdate) return res.status(400).send({ message: 'User cant updated' });
+                if (!userUpdate) return res.status(400).send({ message: res.i18n.t('register_406') });
                 console.log("Image created.");
             }
         }
@@ -121,7 +121,7 @@ exports.register = async (req, res) => {
             }
         });
 
-        return res.send({ message: req.t('user_register_success'), newUser });
+        return res.send({ message: res.i18n.t('register_200'), newUser });
     } catch (error) {
         console.log(error);
         return error;
@@ -351,7 +351,7 @@ exports.updatePasswordByAdmin = async (req, res) => {
             }
         });
         this.sendCredentials(user, tempPassword);
-        return res.status(200).send({ message: "Password change request made." });
+        return res.status(200).send({ message: res.i18n.t('update_password_200') });
     } catch (error) {
         console.log(error);
         return error;
@@ -366,6 +366,7 @@ exports.getUsers = async (req, res) => {
                 deleted: false
             }
         });
+        
         return res.status(200).send({ users })
     } catch (error) {
         console.log(error);
@@ -399,7 +400,7 @@ exports.deleteUser = async (req, res) => {
                 id: idUser
             }
         });
-        if (!userExist) return res.status(400).send({ message: 'User not found' });
+        if (!userExist) return res.status(400).send({ message: res.i18n.t('delete_400') });
 
         const userUpdate = await User.update({
             deleted: true
@@ -409,7 +410,7 @@ exports.deleteUser = async (req, res) => {
             }
         })
         
-        return res.status(200).send({ message: req.t('user_deleted_200') });
+        return res.status(200).send({ message: res.i18n.t('delete_200') });
     } catch (error) {
         console.log(error);
         return error;
@@ -427,7 +428,7 @@ exports.updateUser = async (req, res) => {
                 id: idUser
             }
         });
-        if (!userExist) return res.status(400).send({ message: 'User not found' });
+        if (!userExist) return res.status(400).send({ message: res.i18n.t('update_400') });
         //No se permite actualizar el username
         const userUpdate = await User.update(
             params
@@ -436,13 +437,57 @@ exports.updateUser = async (req, res) => {
                     id: idUser
                 }
             });
-            console.log(req.headers);
-        return res.status(200).send({ message: req.t('updateUser_200') });
+            
+        return res.status(200).send({ message: res.i18n.t('update_200') });
     } catch (error) {
         console.log(error);
         return error;
     }
 };
+
+exports.permissions_id = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const arrayRolesId = [];
+        const arrayRoles_Functions_Id = [];
+        const idFunctions = [];
+
+        //Se almacenan los roles de la persona logeada
+        const roles = await User_Rol.findAll({
+            where: {
+                UserId: id
+            }
+        });
+
+        for (let i = 0; i < roles.length; i++) {
+            arrayRolesId.push(roles[i].RolId);
+        }
+
+        //Obtengo todos los registros de la trabal roles functions
+        const roles_functions = await Role_Functions.findAll({
+            where: {
+                RolId: arrayRolesId
+            }
+        });
+
+        for (let i = 0; i < roles_functions.length; i++) {
+            arrayRoles_Functions_Id.push(roles_functions[i].FunctionId);
+        }
+
+        for (let i = 0; i < arrayRoles_Functions_Id.length; i++) {
+            const id_function = await Function.findOne({
+                where: {
+                    id: arrayRoles_Functions_Id[i]
+                }
+            });
+              
+            if (!idFunctions.includes(id_function.id)) idFunctions.push(id_function.id);
+        }
+        return res.status(200).send({ idFunctions });
+    } catch (err) {
+        return err;
+    }
+}
 
 exports.permissions = async (req, res) => {
     try {

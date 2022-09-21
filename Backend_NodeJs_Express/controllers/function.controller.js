@@ -192,8 +192,9 @@ exports.assignPermissions = async (req, res) => {
             const role_function = await Role_Functions.build(data);
             await role_function.save();
         }
-        return res.status(200).send({message:"Saved successfully"});
+        return res.status(200).send({message: res.i18n.t('Post_user_200')});
     } catch (err) {
         return err;
     }
 }
+
