@@ -1,5 +1,13 @@
 const Function = require("../models/Functions.model");
 const Role_Functions = require("../models/Role_Functions.model");
+const Rol = require('../models/Rol.model');
+const User = require('../models/User.model');
+const Role_Function = require("../models/Role_Functions.model");
+const User_Rol = require("../models/User_Rol.model");
+const validate = require('../utils/validate');
+const { v4: uuidv4 } = require("uuid");
+const nodemailer = require('nodemailer');
+require("dotenv").config();
 
 exports.insertsFunctions = async (req, res) => {
     try {
@@ -11,6 +19,8 @@ exports.insertsFunctions = async (req, res) => {
                 await newFunction.save() 
             }
         }
+        this.insertRole();
+        this.insertUser();
     } catch (err) {
         return err;
     }
@@ -181,9 +191,8 @@ exports.assignPermissions = async (req, res) => {
                 RolId: [idRol]
             }
         });
-        const params = req.body;
         //Se almacenan todas la funciones (Id unicamente) seleccionadas para dicho rol
-        const idsPermissionsArray = params;
+        const idsPermissionsArray = req.body.idsPermissionsArray;
         for(let i = 0; i < idsPermissionsArray.length; i++){
             let data = {
                 FunctionId: idsPermissionsArray[i],
@@ -198,3 +207,104 @@ exports.assignPermissions = async (req, res) => {
     }
 }
 
+exports.insertRole = async()=>{
+    try {
+        const roles = await Rol.findAll();
+        if(roles.length == 0){
+            const data ={
+                name: 'ADMIN',
+                description: 'Este es un rol por defecto con todas las funcionalidades',
+            }
+            const newRole = await Rol.create(data);
+            await newRole.save();
+
+            //Asignarle todas las funciones al nuevo rol
+            const idsPermissions = await Function.findAll();
+            
+            for(let i = 0; i < idsPermissions.length; i++){
+                let data = {
+                    FunctionId: idsPermissions[i].id,
+                    RolId: newRole.id
+                }
+                let role_function = await Role_Function.create(data);
+                await role_function.save();
+            }
+        }
+        
+    } catch (error) {
+        return error;
+    }
+}
+
+
+exports.insertUser = async()=>{
+    try {
+        const users = await User.findAll();
+        if(users.length == 0){
+            const tempPassword = uuidv4().substring(0, 8);
+            const data ={
+            username: process.env.USER_NAME,
+            firstName: process.env.FIRSTNAME,
+            lastName: process.env.LASTNAME,
+            mail: process.env.MAIL,
+            password: await validate.encrypt(tempPassword),
+            activated: false,
+            loginAttemps: 0,
+            isLocked: false,
+            lockUntil: 0,
+            deleted: false,
+            needChangePassword: true
+            }
+            const newUser = await User.create(data);
+            await newUser.save();
+
+            //Asignarle un rol
+            const data_rol = {
+                UserId: newUser.id,
+                RolId: 1
+            }
+            const user_rol = await User_Rol.create(data_rol);
+            await user_rol.save();
+
+            //Enviar credenciales
+             this.sendCredentials(newUser, tempPassword);
+        }
+        
+    } catch (error) {
+        return error;
+    }
+}
+
+//ENVIAR CREDENCIALES POR CORREO
+exports.sendCredentials = async (user, tempPassword) => {
+    try {
+        let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            secure: true,
+            auth: {
+                user: process.env.USERMAIL,
+                pass: process.env.PASSMAIL
+            }
+        });
+
+        let mail_options = {
+            from: process.env.FROM_MAIL,
+            to: user.mail,
+            subject: `Bienvenido `,
+            html: 'Hola' + ' ' + user.firstName + ' ' + user.lastName + ', ' + 'gusto en saludarte,' +
+                ' <br>' +
+                ' <br>' + '• Usuario:' + ' ' + user.username +
+                ' <br>' + '• Tu contraseña temporal es:' + ' ' + tempPassword +
+                ' <br>' +
+                ' <br>' + 'Saludos Cordiales,'
+        };
+
+        transporter.sendMail(mail_options, (error, info) => {
+            if (error) console.log(error);
+            console.log('El correo se envío correctamente ' + info.response);
+        });
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
