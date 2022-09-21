@@ -6,9 +6,6 @@ Function.init({
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: DataTypes.STRING(255),
     description: DataTypes.STRING(255),
-    frontendPage: DataTypes.STRING(255),
-    frontendComponent: DataTypes.STRING(255),
-    backend: DataTypes.STRING(255),
     type: DataTypes.STRING(255)
 }, {
     sequelize,

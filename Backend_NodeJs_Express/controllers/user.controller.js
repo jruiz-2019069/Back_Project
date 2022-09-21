@@ -15,6 +15,7 @@ const Function = require("../models/Functions.model");
 exports.register = async (req, res) => {
     try {
         const params = req.body;
+        
         const tempPassword = uuidv4().substring(0, 8);
         let data = {
             username: params.username,
@@ -47,9 +48,9 @@ exports.register = async (req, res) => {
         });
 
         const validateEmail = p => p.search(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
-
+        
         if(validateEmail(data.mail)) return res.status(400).send({ message: res.i18n.t('register_400') });
-
+        
         if (userName && mail && mail.deleted == false) {
             return res.status(400).send({ message: res.i18n.t('register_401') });
         }
@@ -76,7 +77,7 @@ exports.register = async (req, res) => {
             let user_rol = await User_Rol.build(data);
             await user_rol.save();
         };
-
+        
         let emailSend = (/true/i).test(params.sendEmail);
         if (emailSend) this.sendCredentials(user, tempPassword);
         if (req.files.image) {
@@ -422,7 +423,7 @@ exports.updateUser = async (req, res) => {
     try {
         const idUser = req.params.idUser;
         const params = req.body
-
+        
         const userExist = await User.findOne({
             where: {
                 id: idUser

@@ -32,98 +32,62 @@ exports.arrayFunctions = () => {
         {
             name: "Get users",
             description: "",
-            frontendPage: "",
-            frontendComponent: "",
-            backend: "",
             type: "Modulo de Usuarios"
         },
         {
             name: "User creation",
             description: "",
-            frontendPage: "",
-            frontendComponent: "",
-            backend: "",
             type: "Modulo de Usuarios"
         },
         {
             name: "Change of password",
             description: "",
-            frontendPage: "",
-            frontendComponent: "",
-            backend: "",
             type: "Modulo de Usuarios"
         },
         {
             name: "User blocking",
             description: "",
-            frontendPage: "",
-            frontendComponent: "",
-            backend: "",
             type: "Modulo de Usuarios"
         },
         {
             name: "User Edition",
             description: "",
-            frontendPage: "",
-            frontendComponent: "",
-            backend: "",
             type: "Modulo de Usuarios"
         },
         {
             name: "Deletion of users",
             description: "",
-            frontendPage: "",
-            frontendComponent: "",
-            backend: "",
             type: "Modulo de Usuarios"
         },
         // ROLES
         {
             name: "Role creation",
             description: "",
-            frontendPage: "",
-            frontendComponent: "",
-            backend: "",
             type: "Modulo de Roles"
         },
         {
             name: "Get Roles",
             description: "",
-            frontendPage: "",
-            frontendComponent: "",
-            backend: "",
             type: "Modulo de Roles"
         },
         {
             name: "Get users by role",
             description: "",
-            frontendPage: "",
-            frontendComponent: "",
-            backend: "",
             type: "Modulo de Roles"
         },
         {
             name: "Permission Assignment",
             description: "",
-            frontendPage: "",
-            frontendComponent: "",
-            backend: "",
             type: "Modulo de Roles"
         },
         {
             name: "Role edition",
             description: "",
-            frontendPage: "",
-            frontendComponent: "",
-            backend: "",
             type: "Modulo de Roles"
         },
         {
             name: "Role removal",
             description: "",
-            frontendPage: "",
-            frontendComponent: "",
-            backend: "",
             type: "Modulo de Roles"
         }
     ];
