@@ -17,6 +17,6 @@ router.put('/updateUser/:idUser',auth.isLoged, UserController.updateUser);
 router.put('/updatePasswordByAdmin/:idUser',auth.isLoged, UserController.updatePasswordByAdmin);
 router.get('/permissions/:id', auth.isLoged, UserController.permissions);
 router.get('/permissions_id/:id', UserController.permissions_id);
-router.get('/getImage/:fileName', auth.isLoged, upload, UserController.getImage);
+router.get('/getImage/:fileName', upload, UserController.getImage);
 
 module.exports = router;

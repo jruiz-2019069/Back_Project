@@ -410,6 +410,12 @@ exports.deleteUser = async (req, res) => {
                 id: idUser
             }
         })
+
+        const deletedUser_Rol = await User_Rol.destroy({
+            where: {
+                UserId: [idUser]
+            }
+        });
         
         return res.status(200).send({ message: res.i18n.t('delete_200') });
     } catch (error) {

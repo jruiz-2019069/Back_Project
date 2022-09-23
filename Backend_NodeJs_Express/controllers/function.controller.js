@@ -31,63 +31,63 @@ exports.arrayFunctions = () => {
         // USERS
         {
             name: "Get users",
-            description: "",
+            description: "Permite obtener los usuarios.",
             type: "Modulo de Usuarios"
         },
         {
             name: "User creation",
-            description: "",
+            description: "Permite la creación de un nuevo Usuario.",
             type: "Modulo de Usuarios"
         },
         {
             name: "Change of password",
-            description: "",
+            description: "Permite realizar la solicitud de cambio de contraseña.",
             type: "Modulo de Usuarios"
         },
         {
             name: "User blocking",
-            description: "",
+            description: "Permite realizar el bloqueo o desbloqueo de un usuario.",
             type: "Modulo de Usuarios"
         },
         {
             name: "User Edition",
-            description: "",
+            description: "Permite la edición de un usuario.",
             type: "Modulo de Usuarios"
         },
         {
             name: "Deletion of users",
-            description: "",
+            description: "Permite la eliminación de un usuario.",
             type: "Modulo de Usuarios"
         },
         // ROLES
         {
             name: "Role creation",
-            description: "",
+            description: "Permite la creación de un usuario.",
             type: "Modulo de Roles"
         },
         {
             name: "Get Roles",
-            description: "",
+            description: "Permite la obtención de un usuario.",
             type: "Modulo de Roles"
         },
         {
             name: "Get users by role",
-            description: "",
+            description: "Permite obtener los usuarios asignados a un rol.",
             type: "Modulo de Roles"
         },
         {
             name: "Permission Assignment",
-            description: "",
+            description: "Permite la asignación de permisos a un rol.",
             type: "Modulo de Roles"
         },
         {
             name: "Role edition",
-            description: "",
+            description: "Permite la edición de un rol.",
             type: "Modulo de Roles"
         },
         {
             name: "Role removal",
-            description: "",
+            description: "Permite la eliminación de un rol.",
             type: "Modulo de Roles"
         }
     ];
