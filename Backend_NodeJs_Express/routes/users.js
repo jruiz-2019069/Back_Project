@@ -15,7 +15,6 @@ router.get('/getUser/:idUser',auth.isLoged, UserController.getUser);
 router.put('/deleteUser/:idUser',auth.isLoged, UserController.deleteUser);
 router.put('/updateUser/:idUser',auth.isLoged, UserController.updateUser);
 router.put('/updatePasswordByAdmin/:idUser',auth.isLoged, UserController.updatePasswordByAdmin);
-router.get('/permissions/:id', auth.isLoged, UserController.permissions);
 router.get('/permissions_id/:id', UserController.permissions_id);
 router.get('/getImage/:fileName', upload, UserController.getImage);
 
